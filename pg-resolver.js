@@ -303,8 +303,8 @@ const resolvers = {
   },
   Mutation: {
     setNewPost: async (parent, args) => {
-      console.log('args', args)
-      const { postid, title, categoryid, updatetime, content } = args;
+      // console.log('args', args)
+      const { postid, title, categoryid, updatetime, content, image } = args;
       const commonResponse = { code: 0, message: '' };
       // INSERT INTO science(postid, title, categoryid, updatetime, content) VALUES(
       //   '4847', '大氣視窗x', '天文觀測', 'observation', '2022-04-06', 'xxxxxx'
@@ -315,7 +315,8 @@ const resolvers = {
           title: title,
           categoryid: categoryid,
           updatetime: updatetime,
-          content: content
+          content: content,
+          image: image
         })
         .then(() => {
           commonResponse.message = 'create post success';

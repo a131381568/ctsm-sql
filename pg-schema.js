@@ -21,6 +21,7 @@ const typeDefs = gql`
     updatetime: String
     content: String
     description: String
+    image: String
   }
 
   type ArtistsConnection {
@@ -49,7 +50,7 @@ const typeDefs = gql`
 
 
   type Mutation {
-    setNewPost(postid: Int, title: String, categoryid: String, updatetime: String, content: String): CommonResponse
+    setNewPost(postid: Int, title: String, categoryid: String, updatetime: String, content: String, image: String): CommonResponse
   } 
   
 
