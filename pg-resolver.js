@@ -34,6 +34,7 @@ const resolvers = {
 
       if (first && !after && !before && !categoryid) {
         const data = await knex('science')
+          .whereNot('categoryid', 'like', 'story')
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
 
@@ -55,6 +56,7 @@ const resolvers = {
 
       if (first && after && !categoryid) {
         const data = await knex('science')
+          .whereNot('categoryid', 'like', 'story')
           .where('postid', '<', after)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
@@ -78,6 +80,7 @@ const resolvers = {
 
       if (last && !before && !after && !categoryid) {
         const subQuery = knex('science')
+          .whereNot('categoryid', 'like', 'story')
           .orderBy('orderid', 'ASC')
           .limit(last + 1);
 
@@ -108,6 +111,7 @@ const resolvers = {
       if (last && before && !categoryid) {
         const subQuery = knex('science')
           .where('postid', '>', before)
+          .whereNot('categoryid', 'like', 'story')
           .orderBy('orderid', 'ASC')
           .limit(last + 1);
 
@@ -299,6 +303,10 @@ const resolvers = {
           end: endStr
         }
       };
+    },
+    artistsCategories: async () => {
+      const result = await knex('post_categories').select('*')
+      return result
     }
   },
   Mutation: {

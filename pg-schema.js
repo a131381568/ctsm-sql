@@ -1,6 +1,11 @@
 const { ApolloServer, gql } = require('apollo-server-express');
 
 const typeDefs = gql`
+  type artistsCategory {
+    post_category_name: String
+    post_category_id: String
+  }
+
   type Post {
     postid: Int
     title: String
@@ -12,6 +17,7 @@ const typeDefs = gql`
     getSinglePost(postid: Int!): Post
     artists (first: Int, last: Int, after: Int, before: Int, categoryid:String): ArtistsConnection
     searchArtists (first: Int, last: Int, after: Int, before: Int, keyword:String): ArtistsConnection
+    artistsCategories: [artistsCategory]
   }
 
   type Artist {
