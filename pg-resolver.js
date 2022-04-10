@@ -160,7 +160,6 @@ const resolvers = {
     searchArtists: async (root, args, context, info) => {
       const { first, last, after, before, keyword } = args;
 
-
       if (!first && !last) {
         /* Handling errors */
       }
@@ -290,7 +289,6 @@ const resolvers = {
         startStr = null
         endStr = null
       }
-
 
       return {
         edges: artists,
