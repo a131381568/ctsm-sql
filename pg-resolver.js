@@ -3,13 +3,11 @@ import knex from './psql-adapter'
 const resolvers = {
   Query: {
     getSinglePost: async (_, args) => {
-      // const result = await dbGetPostList()
       const result = await knex('science').select('*')
       const { postid } = args
       const filterList = result.filter((item) => item.postid === postid)[0]
       return filterList;
     },
-    ////////////
     artists: async (root, args, context, info) => {
       const { first, last, after, before, categoryid } = args;
 
@@ -307,6 +305,25 @@ const resolvers = {
     artistsCategories: async () => {
       const result = await knex('post_categories').select('*')
       return result
+    },
+    pageInfo: async () => {
+      const result = await knex('page_info').select('*')
+      return result
+    },
+    aboutInfo: async () => {
+      const result = await knex('about_info').select('*')
+      if (result.length === 0) {
+        return {
+          visual: "",
+          slogan: "",
+          philosophy: "",
+          quote: "",
+          epilogue: ""
+        }
+      } else {
+        return result[0]
+      }
+
     }
   },
   Mutation: {
@@ -343,7 +360,7 @@ const resolvers = {
     description: (parent, args, context) => {
       const { content } = parent
       let str = content.substr(3, 100)
-      let des = str.replace(/\\\n|\\n|\n|<br \/>|<br \/>|\>/g, " ");
+      let des = str.replace(/\\\n|\\n|\n|<br \/>|<br \/>|\>/g, "");
       return des
     },
   }
