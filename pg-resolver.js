@@ -321,8 +321,23 @@ const resolvers = {
       } else {
         return result[0]
       }
-
-    }
+    },
+    facilitiesList: async () => {
+      const result = await knex('facilities_list').select('*')
+      if (result.length === 0) {
+        return []
+      } else {
+        return result
+      }
+    },
+    observatoriesList: async () => {
+      const result = await knex('observatories_list').select('*')
+      if (result.length === 0) {
+        return []
+      } else {
+        return result
+      }
+    },
   },
   Mutation: {
     setNewPost: async (parent, args) => {

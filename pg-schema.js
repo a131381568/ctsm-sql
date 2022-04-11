@@ -1,27 +1,6 @@
 const { ApolloServer, gql } = require('apollo-server-express');
 
 const typeDefs = gql`
-  type artistsCategory {
-    post_category_name: String
-    post_category_id: String
-  }
-
-  type singlePageInfo {
-    page_title: String
-    sub_page_title: String
-    page_route: String
-  }
-
-  type Post {
-    postid: Int
-    title: String
-    categoryid: String
-    updatetime: String
-    content: String
-    description: String
-    image: String
-  }
-
   type Query {
     getSinglePost(postid: Int!): Artist
     artists (first: Int, last: Int, after: Int, before: Int, categoryid:String): ArtistsConnection
@@ -29,6 +8,8 @@ const typeDefs = gql`
     artistsCategories: [artistsCategory]
     pageInfo:[singlePageInfo]
     aboutInfo:AboutInfo
+    facilitiesList: [Facility]
+    observatoriesList: [Observatory]
   }
 
   type Artist {
@@ -51,6 +32,27 @@ const typeDefs = gql`
     cursor: String
   }
 
+  type artistsCategory {
+    post_category_name: String
+    post_category_id: String
+  }
+
+  type singlePageInfo {
+    page_title: String
+    sub_page_title: String
+    page_route: String
+  }
+
+  type Post {
+    postid: Int
+    title: String
+    categoryid: String
+    updatetime: String
+    content: String
+    description: String
+    image: String
+  }
+
   type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
@@ -64,6 +66,19 @@ const typeDefs = gql`
     philosophy: String
     quote: String
     epilogue: String
+  }
+
+  type Facility{
+    facilities_title: String
+    facilities_description: String
+    facilities_image: String
+    facilities_link: String
+  }
+
+  type Observatory{
+    observatory_category_name: String
+    observatory_category_id: String
+    observatory_post_content: String
   }
 
   type CommonResponse {
