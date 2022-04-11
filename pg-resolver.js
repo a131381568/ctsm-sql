@@ -338,6 +338,14 @@ const resolvers = {
         return result
       }
     },
+    stargazingList: async () => {
+      const result = await knex('stargazing_list').select('*')
+      if (result.length === 0) {
+        return []
+      } else {
+        return result
+      }
+    }
   },
   Mutation: {
     setNewPost: async (parent, args) => {

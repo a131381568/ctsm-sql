@@ -10,6 +10,7 @@ const typeDefs = gql`
     aboutInfo:AboutInfo
     facilitiesList: [Facility]
     observatoriesList: [Observatory]
+    stargazingList: [Stargazing]
   }
 
   type Artist {
@@ -79,6 +80,16 @@ const typeDefs = gql`
     observatory_category_name: String
     observatory_category_id: String
     observatory_post_content: String
+  }
+
+  type Stargazing{
+    stargazing_title: String
+    stargazing_latitude: Float
+    stargazing_longitude: Float
+    stargazing_image: String
+    stargazing_description: String
+    stargazing_address: String
+    stargazing_link: String
   }
 
   type CommonResponse {
