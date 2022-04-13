@@ -82,7 +82,7 @@ const resolvers = {
       if (first && !after && !before && !categoryid) {
         const data = await knex('science')
           .whereNot('categoryid', 'like', 'story')
-          .orWhereNot('published', '=', false)
+          .where('published', '=', true)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
 
@@ -93,7 +93,7 @@ const resolvers = {
 
       if (first && !after && !before && categoryid) {
         const data = await knex('science')
-          .orWhereNot('published', '=', false)
+          .whereNot('published', '=', false)
           .where('categoryid', 'like', categoryid)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
@@ -107,8 +107,8 @@ const resolvers = {
         // .whereNotIn('postid', [4824, 4826])
         const data = await knex('science')
           .whereNot('categoryid', 'like', 'story')
-          .orWhereNot('published', '=', false)
           .where('postid', '<', after)
+          .andWhere('published', '=', true)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
 
