@@ -3,10 +3,59 @@ import knex from './psql-adapter'
 const resolvers = {
   Query: {
     getSinglePost: async (_, args) => {
-      const result = await knex('science').select('*')
+      const result = await knex('science').select('*').whereNot('published', '=', false)
       const { postid } = args
       const filterList = result.filter((item) => item.postid === postid)[0]
       return filterList;
+    },
+    artistsPagi: async (root, args, context, info) => {
+
+      let artists;
+      let hasNextPage;
+      let hasPreviousPage;
+      let startStr;
+      let endStr;
+      let totalPagiNum;
+
+      const { pageNumber, linesPerpage } = args;
+      // .whereNot('categoryid', 'like', 'story')
+      // 先取得總頁數
+      const totalCountObj = await knex('science').count('*').whereNot('published', '=', false)
+      totalPagiNum = Math.ceil(totalCountObj[0].count / linesPerpage)
+
+      // 依據參數取得該篇數
+      const data = await knex('science').orderBy('orderid', 'DESC').whereNot('published', '=', false)
+        .limit(linesPerpage + 1)
+        .offset((pageNumber - 1) * linesPerpage)
+
+      hasPreviousPage = false;
+      hasNextPage = data.length > linesPerpage;
+      artists = hasNextPage ? data.slice(0, -1) : data;
+
+      if (pageNumber > 1) {
+        hasPreviousPage = true
+      }
+
+
+      if (artists.length > 0) {
+        startStr = artists[0].postid
+        endStr = artists[artists.length - 1].postid
+      } else {
+        startStr = null
+        endStr = null
+      }
+
+      return {
+        edges: artists,
+        pageInfo: {
+          hasNextPage,
+          hasPreviousPage,
+          start: startStr,
+          end: endStr,
+          totalPagi: totalPagiNum
+        }
+      };
+
     },
     artists: async (root, args, context, info) => {
       const { first, last, after, before, categoryid } = args;
@@ -33,6 +82,7 @@ const resolvers = {
       if (first && !after && !before && !categoryid) {
         const data = await knex('science')
           .whereNot('categoryid', 'like', 'story')
+          .orWhereNot('published', '=', false)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
 
@@ -43,6 +93,7 @@ const resolvers = {
 
       if (first && !after && !before && categoryid) {
         const data = await knex('science')
+          .orWhereNot('published', '=', false)
           .where('categoryid', 'like', categoryid)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
@@ -53,8 +104,10 @@ const resolvers = {
       }
 
       if (first && after && !categoryid) {
+        // .whereNotIn('postid', [4824, 4826])
         const data = await knex('science')
           .whereNot('categoryid', 'like', 'story')
+          .orWhereNot('published', '=', false)
           .where('postid', '<', after)
           .orderBy('orderid', 'DESC')
           .limit(first + 1);
@@ -66,6 +119,7 @@ const resolvers = {
 
       if (first && after && categoryid) {
         const data = await knex('science')
+          .whereNot('published', '=', false)
           .where('postid', '<', after)
           .andWhere('categoryid', 'like', categoryid)
           .orderBy('orderid', 'DESC')
@@ -79,6 +133,7 @@ const resolvers = {
       if (last && !before && !after && !categoryid) {
         const subQuery = knex('science')
           .whereNot('categoryid', 'like', 'story')
+          .where('published', '=', true)
           .orderBy('orderid', 'ASC')
           .limit(last + 1);
 
@@ -93,6 +148,7 @@ const resolvers = {
 
       if (last && !before && !after && categoryid) {
         const subQuery = knex('science')
+          .whereNot('published', '=', false)
           .where('categoryid', 'like', categoryid)
           .orderBy('orderid', 'ASC')
           .limit(last + 1);
@@ -107,9 +163,11 @@ const resolvers = {
       }
 
       if (last && before && !categoryid) {
+        //           .whereNot('categoryid', 'like', 'story')
         const subQuery = knex('science')
+          .whereNot('categoryid', '=', 'story')
           .where('postid', '>', before)
-          .whereNot('categoryid', 'like', 'story')
+          .andWhere('published', '=', true)
           .orderBy('orderid', 'ASC')
           .limit(last + 1);
 
@@ -124,6 +182,7 @@ const resolvers = {
 
       if (last && before && categoryid) {
         const subQuery = knex('science')
+          .whereNot('published', '=', false)
           .where('postid', '>', before)
           .andWhere('categoryid', 'like', categoryid)
           .orderBy('orderid', 'ASC')
@@ -145,7 +204,6 @@ const resolvers = {
         startStr = null
         endStr = null
       }
-
 
       return {
         edges: artists,
@@ -349,7 +407,6 @@ const resolvers = {
   },
   Mutation: {
     setNewPost: async (parent, args) => {
-      // console.log('args', args)
       const { postid, title, categoryid, updatetime, content, image } = args;
       const commonResponse = { code: 0, message: '' };
       // INSERT INTO science(postid, title, categoryid, updatetime, content) VALUES(

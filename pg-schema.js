@@ -3,7 +3,7 @@ const { ApolloServer, gql } = require('apollo-server-express');
 const typeDefs = gql`
   type Query {
     getSinglePost(postid: Int!): Artist
-    artists (first: Int, last: Int, after: Int, before: Int, categoryid:String): ArtistsConnection
+    artists (first: Int, last: Int, after: Int, before: Int, categoryid:String, pageNumber: Int): ArtistsConnection
     searchArtists (first: Int, last: Int, after: Int, before: Int, keyword:String): ArtistsConnection
     artistsCategories: [artistsCategory]
     pageInfo:[singlePageInfo]
@@ -11,6 +11,7 @@ const typeDefs = gql`
     facilitiesList: [Facility]
     observatoriesList: [Observatory]
     stargazingList: [Stargazing]
+    artistsPagi (pageNumber: Int, linesPerpage: Int): ArtistsConnectionPush
   }
 
   type Artist {
@@ -26,6 +27,11 @@ const typeDefs = gql`
   type ArtistsConnection {
     edges: [Artist]
     pageInfo: PageInfo!
+  }
+
+  type ArtistsConnectionPush {
+    edges: [Artist]
+    pageInfo: PageInfoPush!
   }
 
   type ArtistEdge {
@@ -59,6 +65,14 @@ const typeDefs = gql`
     hasPreviousPage: Boolean!
     start: Int
     end: Int
+  }
+
+  type PageInfoPush {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    start: Int
+    end: Int
+    totalPagi: Int
   }
 
   type AboutInfo {
