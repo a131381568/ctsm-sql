@@ -1,6 +1,14 @@
 const { ApolloServer, gql } = require('apollo-server-express');
 
 const typeDefs = gql`
+  scalar Upload
+
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
   type Query {
     getSinglePost(postid: Int!): Artist
     artists (first: Int, last: Int, after: Int, before: Int, categoryid:String, pageNumber: Int): ArtistsConnection
@@ -12,6 +20,7 @@ const typeDefs = gql`
     observatoriesList: [Observatory]
     stargazingList: [Stargazing]
     artistsPagi (pageNumber: Int, linesPerpage: Int): ArtistsConnectionPush
+    otherFields: Boolean!
   }
 
   type Artist {
@@ -113,6 +122,7 @@ const typeDefs = gql`
 
   type Mutation {
     setNewPost(postid: Int, title: String, categoryid: String, updatetime: String, content: String, image: String): CommonResponse
+    singleUpload(file: Upload!): File!
   } 
 `
 export default typeDefs;

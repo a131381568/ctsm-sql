@@ -1,4 +1,9 @@
 import knex from './psql-adapter'
+const path = require('path');
+const { finished } = require('stream/promises');
+const {
+  GraphQLUpload,
+} = require('graphql-upload');
 
 const resolvers = {
   Query: {
@@ -405,6 +410,7 @@ const resolvers = {
       }
     }
   },
+  Upload: GraphQLUpload,
   Mutation: {
     setNewPost: async (parent, args) => {
       const { postid, title, categoryid, updatetime, content, image } = args;
@@ -432,6 +438,23 @@ const resolvers = {
           return commonResponse;
         });
 
+    },
+    singleUpload: async (_, { file }) => {
+      const { createReadStream, filename, mimetype, encoding } = await file;
+      const stream = createReadStream();
+
+      // const out = require('fs').createWriteStream('local-file-output.txt');
+      // stream.pipe(out);
+      // await finished(out);
+
+      const out = await require('fs').createWriteStream(path.join(__dirname, "/images", filename))
+
+      await new Promise(res =>
+        stream.pipe(out)
+          .on("close", res)
+      );
+
+      return { filename, mimetype, encoding };
     }
   },
   Artist: {

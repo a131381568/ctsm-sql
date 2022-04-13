@@ -22,10 +22,12 @@
     "express": "^4.17.3",
     "graphql": "^16.3.0",
     "graphql-tools": "^8.2.4",
+    "graphql-upload": "^13.0.0",
     "http": "0.0.1-security",
     "knex": "^1.0.5",
     "nodemon": "^2.0.15",
-    "pg-promise": "^10.11.1"
+    "pg-promise": "^10.11.1",
+    "stream-promise": "^3.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
