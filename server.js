@@ -10,13 +10,14 @@ const { graphqlUploadExpress } = require('graphql-upload');
 import typeDefs from './pg-schema';
 import resolvers from './pg-resolver';
 
-
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.BE_JWT_SECRET;
 
 const translateJWT = async (jwtStr) => {
+  const tokenRmBearer = jwtStr.replace('Bearer ', '')
+  // console.log(jwtStr)
   try {
-    const jwtObj = await jwt.verify(jwtStr, SECRET)
+    const jwtObj = await jwt.verify(tokenRmBearer, SECRET)
     return jwtObj
   } catch (err) {
     // console.log(err.name, err.message)
@@ -28,7 +29,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async ({ req }) => {
-    const jwtToken = req.headers['token']
+    const jwtToken = req.headers['authorization']
     if (jwtToken) {
       // return jwtToken
       const me = await translateJWT(jwtToken)
