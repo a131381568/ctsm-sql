@@ -1,9 +1,66 @@
+require('dotenv').config({
+  path: ".env." + process.env.NODE_ENV
+})
+
 import knex from './psql-adapter'
 const path = require('path');
 const { finished } = require('stream/promises');
 const {
   GraphQLUpload,
 } = require('graphql-upload');
+
+// 引入外部套件
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+// 定義 bcrypt 加密所需 saltRounds 次數
+const SALT_ROUNDS = 2;
+// 定義 jwt 所需 secret
+const SECRET = process.env.BE_JWT_SECRET;
+
+// 儲存使用者資訊
+const users = [
+  {
+    id: 1,
+    email: "fong@test.com",
+    password: "$2b$04$wcwaquqi5ea1Ho0aKwkZ0e51/RUkg6SGxaumo8fxzILDmcrv4OBIO", // 123456
+    name: "Fong",
+    age: 23,
+    friendIds: [2, 3]
+  },
+
+  {
+    id: 2,
+    email: "kevin@test.com",
+    passwrod: "$2b$04$uy73IdY9HVZrIENuLwZ3k./0azDvlChLyY1ht/73N4YfEZntgChbe", // 123456
+    name: "Kevin",
+    age: 40,
+    friendIds: [1]
+  },
+  {
+    id: 3,
+    email: "mary@test.com",
+    password: "$2b$04$UmERaT7uP4hRqmlheiRHbOwGEhskNw05GHYucU73JRf8LgWaqWpTy", // 123456
+    name: "Mary",
+    age: 18,
+    friendIds: [1]
+  }
+];
+const hash = text => bcrypt.hash(text, SALT_ROUNDS);
+const addUser = ({ name, email, password }) => (
+  users[users.length] = {
+    id: users[users.length - 1].id + 1,
+    name,
+    email,
+    password
+  }
+);
+
+// helper function
+const createToken = ({ id, email, name }) => jwt.sign({ id, email, name }, SECRET, {
+  expiresIn: '1d'
+});
+
 
 const resolvers = {
   Query: {
@@ -455,6 +512,30 @@ const resolvers = {
       );
 
       return { filename, mimetype, encoding };
+    },
+    signUp: async (root, { name, email, password }, context) => {
+      // 1. 檢查不能有重複註冊 email
+      const isUserEmailDuplicate = users.some(user => user.email === email);
+      if (isUserEmailDuplicate) throw new Error('User Email Duplicate');
+
+      // 2. 將 passwrod 加密再存進去。非常重要 !!
+      const hashedPassword = await hash(password, SALT_ROUNDS);
+      // 3. 建立新 user
+      const newUser = await addUser({ name, email, password: hashedPassword });
+
+      return newUser
+    },
+    login: async (root, { email, password }, context) => {
+      // 1. 透過 email 找到相對應的 user
+      const user = users.find(user => user.email === email);
+      if (!user) throw new Error('Email Account Not Exists');
+
+      // 2. 將傳進來的 password 與資料庫存的 user.password 做比對
+      const passwordIsValid = await bcrypt.compare(password, user.password);
+      if (!passwordIsValid) throw new Error('Wrong Password');
+
+      // 3. 成功則回傳 token
+      return { token: await createToken(user) };
     }
   },
   Artist: {

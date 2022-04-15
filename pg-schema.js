@@ -120,9 +120,21 @@ const typeDefs = gql`
     message: String!
   }
 
+  type User {
+    id: ID!
+    email: String!
+    name: String
+  }
+
+  type Token {
+    token: String!
+  }
+
   type Mutation {
     setNewPost(postid: Int, title: String, categoryid: String, updatetime: String, content: String, image: String): CommonResponse
     singleUpload(file: Upload!): File!
+    signUp(name: String, email: String!, password: String!): User
+    login (email: String!, password: String!): Token
   } 
 `
 export default typeDefs;
