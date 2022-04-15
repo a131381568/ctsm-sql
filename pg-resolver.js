@@ -2,6 +2,11 @@ require('dotenv').config({
   path: ".env." + process.env.NODE_ENV
 })
 
+const {
+  ForbiddenError,
+  AuthenticationError
+} = require("apollo-server-core");
+
 import knex from './psql-adapter'
 const path = require('path');
 const { finished } = require('stream/promises');
@@ -60,6 +65,12 @@ const addUser = ({ name, email, password }) => (
 const createToken = ({ id, email, name }) => jwt.sign({ id, email, name }, SECRET, {
   expiresIn: '1d'
 });
+const findUserByUserId = userId =>
+  users.find(user => user.id === Number(userId));
+const isAuthenticated = resolverFunc => (parent, args, context) => {
+  if (!context.me) throw new ForbiddenError("Not logged in.");
+  return resolverFunc.apply(null, [parent, args, context]);
+};
 
 
 const resolvers = {
@@ -464,6 +475,29 @@ const resolvers = {
         return []
       } else {
         return result
+      }
+    },
+    me: async (root, args, context) => {
+      // const jwtStr = Object.values(context).join("")
+      const emptyObj = {
+        id: "",
+        email: "",
+        name: ""
+      }
+      if (Object.keys(context).length === 0) {
+        // 完全沒帶 token 的情況
+        // return emptyObj
+        return null
+      } else {
+        const { me } = context
+        console.log(me)
+        // 有錯誤的情況
+        if (Object.keys(me).length === 0) {
+          // return emptyObj
+          return null
+        }
+        // 正常回傳
+        return me
       }
     }
   },

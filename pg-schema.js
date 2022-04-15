@@ -21,6 +21,7 @@ const typeDefs = gql`
     stargazingList: [Stargazing]
     artistsPagi (pageNumber: Int, linesPerpage: Int): ArtistsConnectionPush
     otherFields: Boolean!
+    me: User
   }
 
   type Artist {
@@ -136,5 +137,8 @@ const typeDefs = gql`
     signUp(name: String, email: String!, password: String!): User
     login (email: String!, password: String!): Token
   } 
+
+
+
 `
 export default typeDefs;
