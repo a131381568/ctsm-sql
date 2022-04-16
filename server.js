@@ -15,7 +15,6 @@ const SECRET = process.env.BE_JWT_SECRET;
 
 const translateJWT = async (jwtStr) => {
   const tokenRmBearer = jwtStr.replace('Bearer ', '')
-  // console.log(jwtStr)
   try {
     const jwtObj = await jwt.verify(tokenRmBearer, SECRET)
     return jwtObj
@@ -31,7 +30,6 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     const jwtToken = req.headers['authorization']
     if (jwtToken) {
-      // return jwtToken
       const me = await translateJWT(jwtToken)
       return { me };
     } else {

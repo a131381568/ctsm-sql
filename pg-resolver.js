@@ -65,8 +65,10 @@ const addUser = ({ name, email, password }) => (
 const createToken = ({ id, email, name }) => jwt.sign({ id, email, name }, SECRET, {
   expiresIn: '1d'
 });
+
 const findUserByUserId = userId =>
   users.find(user => user.id === Number(userId));
+
 const isAuthenticated = resolverFunc => (parent, args, context) => {
   if (!context.me) throw new ForbiddenError("Not logged in.");
   return resolverFunc.apply(null, [parent, args, context]);
@@ -477,29 +479,52 @@ const resolvers = {
         return result
       }
     },
-    me: async (root, args, context) => {
+    me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
       const emptyObj = {
         id: "",
         email: "",
         name: ""
       }
-      if (Object.keys(context).length === 0) {
-        // 完全沒帶 token 的情況
+      // if (Object.keys(context).length === 0) {
+      //   // 完全沒帶 token 的情況
+      //   // return emptyObj
+      //   return null
+      // } else {
+      //   const { me } = context
+
+      function changeDate(timestamp) {
+        let display = ""
+        const ts = new Date(timestamp);
+        const year = ts.getFullYear()
+        let date = ts.getDate()
+        let month = ts.getMonth() + 1
+        let hour = ts.getHours()
+        let minutes = ts.getMinutes()
+        let sec = ts.getSeconds()
+        if (String(month).length === 1) {
+          display = year + "-" + "0" + month
+        } else {
+          display = year + "-" + month
+        }
+        if (String(date).length === 1) {
+          display = display + "-" + "0" + date
+        } else {
+          display = display + "-" + date
+        }
+        return display + " " + hour + ":" + minutes + ":" + sec
+      }
+
+      console.log(changeDate(me.iat * 1000), changeDate(me.exp * 1000))
+      // 有錯誤的情況
+      if (Object.keys(me).length === 0) {
         // return emptyObj
         return null
-      } else {
-        const { me } = context
-        console.log(me)
-        // 有錯誤的情況
-        if (Object.keys(me).length === 0) {
-          // return emptyObj
-          return null
-        }
-        // 正常回傳
-        return me
       }
-    }
+      // 正常回傳
+      return me
+      // }
+    })
   },
   Upload: GraphQLUpload,
   Mutation: {
