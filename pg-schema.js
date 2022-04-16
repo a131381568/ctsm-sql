@@ -133,11 +133,20 @@ const typeDefs = gql`
     token: String!
   }
 
+  type LoginInfo {
+    token: String!
+    id: ID!
+    email: String!
+    name: String
+    iat: Int
+    exp: Int
+  }
+
   type Mutation {
     setNewPost(postid: Int, title: String, categoryid: String, updatetime: String, content: String, image: String): CommonResponse
     singleUpload(file: Upload!): File!
     signUp(name: String, email: String!, password: String!): User
-    login (email: String!, password: String!): Token
+    login (email: String!, password: String!): LoginInfo
   } 
 
 

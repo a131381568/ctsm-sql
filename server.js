@@ -19,7 +19,18 @@ const translateJWT = async (jwtStr) => {
     const jwtObj = await jwt.verify(tokenRmBearer, SECRET)
     return jwtObj
   } catch (err) {
-    // console.log(err.name, err.message)
+    if (err.name === "TokenExpiredError") {
+      console.log("憑證已過期")
+    }
+    if (err.name === "JsonWebTokenError") {
+      console.log("憑證格式有誤，請重新登入。")
+    }
+    console.log(err.name, err.message)
+    // return {
+    //   errorTitle: err.name,
+    //   errorMsg: err.message
+    // }
+    // return jwtObj
     return {}
   }
 }
@@ -30,9 +41,11 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     const jwtToken = req.headers['authorization']
     if (jwtToken) {
+      console.log("有 jwtToken")
       const me = await translateJWT(jwtToken)
       return { me };
     } else {
+      console.log("無 jwtToken")
       return {}
     }
   }

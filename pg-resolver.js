@@ -484,7 +484,10 @@ const resolvers = {
       const emptyObj = {
         id: "",
         email: "",
-        name: ""
+        name: "",
+        iat: null,
+        exp: null,
+        active: false
       }
       // if (Object.keys(context).length === 0) {
       //   // 完全沒帶 token 的情況
@@ -492,8 +495,6 @@ const resolvers = {
       //   return null
       // } else {
       //   const { me } = context
-
-      console.log(me)
 
       function changeDate(timestamp) {
         let display = ""
@@ -517,15 +518,15 @@ const resolvers = {
         return display + " " + hour + ":" + minutes + ":" + sec
       }
 
-      console.log(changeDate(me.iat * 1000), changeDate(me.exp * 1000))
-      // 有錯誤的情況
-      if (Object.keys(me).length === 0) {
-        // return emptyObj
-        return null
-      }
+      console.log(me)
       // 正常回傳
-      return me
-      // }
+      if (Object.keys(me).length > 0) {
+        console.log(changeDate(me.iat * 1000), changeDate(me.exp * 1000))
+        return me
+      }
+      // 有錯誤的情況
+      return emptyObj
+
     })
   },
   Upload: GraphQLUpload,
@@ -596,7 +597,11 @@ const resolvers = {
       if (!passwordIsValid) throw new Error('Wrong Password');
 
       // 3. 成功則回傳 token
-      return { token: await createToken(user) };
+      const tokenReal = await createToken(user)
+      const jwtObj = await jwt.verify(tokenReal, SECRET)
+      jwtObj.token = tokenReal
+      console.log(jwtObj)
+      return jwtObj
     }
   },
   Artist: {
