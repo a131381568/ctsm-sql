@@ -125,6 +125,8 @@ const typeDefs = gql`
     id: ID!
     email: String!
     name: String
+    iat: Int
+    exp: Int
   }
 
   type Token {

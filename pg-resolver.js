@@ -63,7 +63,7 @@ const addUser = ({ name, email, password }) => (
 
 // helper function
 const createToken = ({ id, email, name }) => jwt.sign({ id, email, name }, SECRET, {
-  expiresIn: '1d'
+  expiresIn: '2m'
 });
 
 const findUserByUserId = userId =>
@@ -492,6 +492,8 @@ const resolvers = {
       //   return null
       // } else {
       //   const { me } = context
+
+      console.log(me)
 
       function changeDate(timestamp) {
         let display = ""
