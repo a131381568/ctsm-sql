@@ -599,8 +599,8 @@ const resolvers = {
       if (!passwordIsValid) throw new Error('Wrong Password');
 
       // 3. 成功則回傳 token
-      const mainToken = await createToken(user, '2m')
-      const refreshToken = await createToken(user, '10m')
+      const mainToken = await createToken(user, '10s')
+      const refreshToken = await createToken(user, '5m')
       const mainInfo = await jwt.verify(mainToken, SECRET)
       const refreshInfo = await jwt.verify(refreshToken, SECRET)
 
@@ -634,7 +634,7 @@ const resolvers = {
 
       // 解析 原本的 token 是否過期
       const oriToken = context.jwtInfo.errorTitle
-      // console.log("extendExpired-oriToken: ", oriToken)
+      console.log("extendExpired-oriToken: ", oriToken)
 
       // 解析 refresh 是否過期
       const resolveOriRetokenIsERR = await jwt.verify(oriReToken, SECRET, function (err) {
@@ -648,11 +648,17 @@ const resolvers = {
       const user = users.find(user => user.id === userId);
       // if (!user) throw new Error('User ID Not Exists');
 
+      console.log("resolveOriRetokenIsERR: ", resolveOriRetokenIsERR)
+      console.log("oriToken: ", oriToken)
+      console.log("user: ", user)
+      console.log("email: ", email)
+
       // 符合條件才回傳查詢
       if (!resolveOriRetokenIsERR && oriToken === "TokenExpiredError" && user.email === email) {
+        console.log("符合條件")
         // 重新製作 JWT
-        const mainToken = await createToken(user, '2m')
-        const refreshToken = await createToken(user, '10m')
+        const mainToken = await createToken(user, '10s')
+        const refreshToken = await createToken(user, '5m')
         const mainInfo = await jwt.verify(mainToken, SECRET)
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
         const jwtObj = {

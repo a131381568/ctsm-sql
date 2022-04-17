@@ -39,7 +39,7 @@ const translateJWT = async (jwtStr) => {
     }
     emptyObj.errorTitle = err.name
     emptyObj.errorMsg = err.message
-    console.log(emptyObj)
+    // console.log(emptyObj)
     return emptyObj
   }
 }
@@ -50,7 +50,7 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     let isAdminPage = false
     // if (isAdminPage) {
-    // console.log(req.body.operationName)
+    console.log(req.body.operationName)
 
     // 每次請求時都檢查是否有 token
     const jwtStr = req.headers['authorization']
