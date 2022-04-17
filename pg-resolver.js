@@ -26,6 +26,14 @@ const SECRET = process.env.BE_JWT_SECRET;
 // 儲存使用者資訊
 const users = [
   {
+    id: 7613,
+    email: "allen@test.com",
+    password: "$2b$04$wcwaquqi5ea1Ho0aKwkZ0e51/RUkg6SGxaumo8fxzILDmcrv4OBIO", // 123456
+    name: "Allen",
+    age: 30,
+    friendIds: [1, 2, 3, 4, 5]
+  },
+  {
     id: 1,
     email: "fong@test.com",
     password: "$2b$04$wcwaquqi5ea1Ho0aKwkZ0e51/RUkg6SGxaumo8fxzILDmcrv4OBIO", // 123456
@@ -33,7 +41,6 @@ const users = [
     age: 23,
     friendIds: [2, 3]
   },
-
   {
     id: 2,
     email: "kevin@test.com",
@@ -599,8 +606,8 @@ const resolvers = {
       if (!passwordIsValid) throw new Error('Wrong Password');
 
       // 3. 成功則回傳 token
-      const mainToken = await createToken(user, '10s')
-      const refreshToken = await createToken(user, '5m')
+      const mainToken = await createToken(user, '30m')
+      const refreshToken = await createToken(user, '15 days')
       const mainInfo = await jwt.verify(mainToken, SECRET)
       const refreshInfo = await jwt.verify(refreshToken, SECRET)
 
@@ -657,8 +664,8 @@ const resolvers = {
       if (!resolveOriRetokenIsERR && oriToken === "TokenExpiredError" && user.email === email) {
         console.log("符合條件")
         // 重新製作 JWT
-        const mainToken = await createToken(user, '10s')
-        const refreshToken = await createToken(user, '5m')
+        const mainToken = await createToken(user, '30m')
+        const refreshToken = await createToken(user, '15 days')
         const mainInfo = await jwt.verify(mainToken, SECRET)
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
         const jwtObj = {
