@@ -62,8 +62,8 @@ const addUser = ({ name, email, password }) => (
 );
 
 // helper function
-const createToken = ({ id, email, name }) => jwt.sign({ id, email, name }, SECRET, {
-  expiresIn: '2m'
+const createToken = ({ id, email, name }, time) => jwt.sign({ id, email, name }, SECRET, {
+  expiresIn: time
 });
 
 const findUserByUserId = userId =>
@@ -481,13 +481,15 @@ const resolvers = {
     },
     me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
-      const emptyObj = {
-        id: "",
-        email: "",
+      let emptyObj = {
         name: "",
+        id: null,
+        email: "",
         iat: null,
+        token: "",
         exp: null,
-        active: false
+        refreshToken: "",
+        refreshExp: null
       }
       // if (Object.keys(context).length === 0) {
       //   // 完全沒帶 token 的情況
@@ -597,11 +599,77 @@ const resolvers = {
       if (!passwordIsValid) throw new Error('Wrong Password');
 
       // 3. 成功則回傳 token
-      const tokenReal = await createToken(user)
-      const jwtObj = await jwt.verify(tokenReal, SECRET)
-      jwtObj.token = tokenReal
-      console.log(jwtObj)
+      const mainToken = await createToken(user, '2m')
+      const refreshToken = await createToken(user, '10m')
+      const mainInfo = await jwt.verify(mainToken, SECRET)
+      const refreshInfo = await jwt.verify(refreshToken, SECRET)
+
+      const jwtObj = {
+        name: mainInfo.name,
+        id: mainInfo.id,
+        email: mainInfo.email,
+        iat: mainInfo.iat,
+        token: mainToken,
+        exp: mainInfo.exp,
+        refreshToken: refreshToken,
+        refreshExp: refreshInfo.exp,
+      }
+      console.log("login--context:", jwtObj)
       return jwtObj
+    },
+    extendExpired: async (root, { userId, email, oriReToken }, context) => {
+      // 預設空值
+      const emptyObj = {
+        name: "",
+        id: null,
+        email: "",
+        iat: null,
+        token: "",
+        exp: null,
+        refreshToken: "",
+        refreshExp: null,
+        errorTitle: "",
+        errorMsg: ""
+      }
+
+      // 解析 原本的 token 是否過期
+      const oriToken = context.jwtInfo.errorTitle
+      // console.log("extendExpired-oriToken: ", oriToken)
+
+      // 解析 refresh 是否過期
+      const resolveOriRetokenIsERR = await jwt.verify(oriReToken, SECRET, function (err) {
+        if (err) {
+          return true
+        }
+      });
+      // if (resolveOriRetoken) throw new Error('User ID Not Exists');
+
+      // 查詢此 ID 使用者是否存在
+      const user = users.find(user => user.id === userId);
+      // if (!user) throw new Error('User ID Not Exists');
+
+      // 符合條件才回傳查詢
+      if (!resolveOriRetokenIsERR && oriToken === "TokenExpiredError" && user.email === email) {
+        // 重新製作 JWT
+        const mainToken = await createToken(user, '2m')
+        const refreshToken = await createToken(user, '10m')
+        const mainInfo = await jwt.verify(mainToken, SECRET)
+        const refreshInfo = await jwt.verify(refreshToken, SECRET)
+        const jwtObj = {
+          name: mainInfo.name,
+          id: mainInfo.id,
+          email: mainInfo.email,
+          iat: mainInfo.iat,
+          token: mainToken,
+          exp: mainInfo.exp,
+          refreshToken: refreshToken,
+          refreshExp: refreshInfo.exp,
+        }
+        // console.log("extendExpired:", jwtObj)
+        return jwtObj
+      } else {
+        return emptyObj
+      }
     }
   },
   Artist: {
