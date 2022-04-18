@@ -142,6 +142,8 @@ const typeDefs = gql`
     exp: Int
     refreshToken: String
     refreshExp: Int
+    errorTitle: String
+    errorMsg: String
   }
 
   type Mutation {

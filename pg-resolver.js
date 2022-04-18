@@ -597,32 +597,61 @@ const resolvers = {
       return newUser
     },
     login: async (root, { email, password }, context) => {
-      // 1. 透過 email 找到相對應的 user
-      const user = users.find(user => user.email === email);
-      if (!user) throw new Error('Email Account Not Exists');
-
-      // 2. 將傳進來的 password 與資料庫存的 user.password 做比對
-      const passwordIsValid = await bcrypt.compare(password, user.password);
-      if (!passwordIsValid) throw new Error('Wrong Password');
-
-      // 3. 成功則回傳 token
-      const mainToken = await createToken(user, '30m')
-      const refreshToken = await createToken(user, '15 days')
-      const mainInfo = await jwt.verify(mainToken, SECRET)
-      const refreshInfo = await jwt.verify(refreshToken, SECRET)
-
-      const jwtObj = {
-        name: mainInfo.name,
-        id: mainInfo.id,
-        email: mainInfo.email,
-        iat: mainInfo.iat,
-        token: mainToken,
-        exp: mainInfo.exp,
-        refreshToken: refreshToken,
-        refreshExp: refreshInfo.exp,
+      // 預設空值
+      const emptyObj = {
+        name: "",
+        id: null,
+        email: "",
+        iat: null,
+        token: "",
+        exp: null,
+        refreshToken: "",
+        refreshExp: null,
+        errorTitle: "",
+        errorMsg: ""
       }
-      console.log("login--context:", jwtObj)
-      return jwtObj
+      let passwordIsValid = false
+
+      // 透過 email 找到相對應的 user
+      const user = users.find(user => user.email === email);
+
+      // 將傳進來的 password 與資料庫存的 user.password 做比對
+      if (user) {
+        passwordIsValid = await bcrypt.compare(password, user.password);
+      }
+
+      if (user && passwordIsValid) {
+        // 成功則回傳 token
+        const mainToken = await createToken(user, '30m')
+        const refreshToken = await createToken(user, '15 days')
+        const mainInfo = await jwt.verify(mainToken, SECRET)
+        const refreshInfo = await jwt.verify(refreshToken, SECRET)
+        const jwtObj = {
+          name: mainInfo.name,
+          id: mainInfo.id,
+          email: mainInfo.email,
+          iat: mainInfo.iat,
+          token: mainToken,
+          exp: mainInfo.exp,
+          refreshToken: refreshToken,
+          refreshExp: refreshInfo.exp,
+          errorTitle: "",
+          errorMsg: ""
+        }
+        return jwtObj
+      } else if (!user) {
+        // 找不到使用者
+        emptyObj.errorMsg = "Email Not Exists"
+        return emptyObj
+      } else if (!passwordIsValid) {
+        // 密碼錯誤
+        emptyObj.errorMsg = "Wrong Password"
+        return emptyObj
+      } else {
+        // 其他情況
+        emptyObj.errorMsg = "Wrong Operation"
+        return emptyObj
+      }
     },
     extendExpired: async (root, { userId, email, oriReToken }, context) => {
       // 預設空值
