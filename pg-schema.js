@@ -22,6 +22,7 @@ const typeDefs = gql`
     artistsPagi (pageNumber: Int, linesPerpage: Int): ArtistsConnectionPush
     otherFields: Boolean!
     me: User
+    stargazingPagi (pageNumber: Int, linesPerpage: Int): StargazingConnectionPush
   }
 
   type Artist {
@@ -32,6 +33,7 @@ const typeDefs = gql`
     content: String
     description: String
     image: String
+    published: Boolean
   }
 
   type ArtistsConnection {
@@ -114,6 +116,13 @@ const typeDefs = gql`
     stargazing_description: String
     stargazing_address: String
     stargazing_link: String
+    stargazing_lid: String
+    published: Boolean
+  }
+
+  type StargazingConnectionPush {
+    edges: [Stargazing]
+    pageInfo: PageInfoPush!
   }
 
   type CommonResponse {

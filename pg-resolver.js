@@ -486,6 +486,53 @@ const resolvers = {
         return result
       }
     },
+    stargazingPagi: async (root, args, context, info) => {
+      let stargazingList;
+      let hasNextPage;
+      let hasPreviousPage;
+      let startStr;
+      let endStr;
+      let totalPagiNum;
+
+      const { pageNumber, linesPerpage } = args;
+      // .whereNot('categoryid', 'like', 'story')
+      // 先取得總頁數
+      const totalCountObj = await knex('stargazing_list').count('*').whereNot('published', '=', false)
+      totalPagiNum = Math.ceil(totalCountObj[0].count / linesPerpage)
+
+      // 依據參數取得該篇數
+      const data = await knex('stargazing_list').orderBy('stargazing_orderid', 'DESC').whereNot('published', '=', false)
+        .limit(linesPerpage + 1)
+        .offset((pageNumber - 1) * linesPerpage)
+
+      hasPreviousPage = false;
+      hasNextPage = data.length > linesPerpage;
+      stargazingList = hasNextPage ? data.slice(0, -1) : data;
+
+      if (pageNumber > 1) {
+        hasPreviousPage = true
+      }
+
+      if (stargazingList.length > 0) {
+        startStr = stargazingList[0].stargazing_lid
+        endStr = stargazingList[stargazingList.length - 1].stargazing_lid
+      } else {
+        startStr = null
+        endStr = null
+      }
+
+      return {
+        edges: stargazingList,
+        pageInfo: {
+          hasNextPage,
+          hasPreviousPage,
+          start: startStr,
+          end: endStr,
+          totalPagi: totalPagiNum
+        }
+      };
+
+    },
     me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
       let emptyObj = {
