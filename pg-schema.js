@@ -8,6 +8,7 @@ const typeDefs = gql`
     mimetype: String!
     encoding: String!
     s3Path: String!
+    errorTitle: String
   }
 
   type Query {

@@ -616,36 +616,38 @@ const resolvers = {
         });
 
     },
-    singleUpload: async (_, { file }) => {
-      let s3Path = ""
+    singleUpload: async (_, { file }, content) => {
+      const { fileSize } = content
+      const fs = require('fs');
       const { createReadStream, filename, mimetype, encoding } = await file;
       const stream = createReadStream();
       const filePath = path.join(__dirname, "/images", filename)
+      let s3Path = ""
+      let errorTitle = ""
 
       // const fileList = await getAllKeys()
       // console.log(`allKeys: ${JSON.stringify(fileList)}`)
 
-      // const out = require('fs').createWriteStream('local-file-output.txt');
-      // stream.pipe(out);
-      // await finished(out);
-
-      const out = await require('fs').createWriteStream(filePath)
-
-      const pipeFile = await new Promise((resolve, reject) =>
-        stream.pipe(out).on('finish', () => {
-        }).on("close", () => {
-          resolve(true)
-        }).on('error', err => {
-          console.log(err);
-          reject(false);
-        })
-      );
-
-      if (pipeFile) {
-        s3Path = await upload(filePath, filename, mimetype)
+      if (fileSize < 1048576) {
+        const out = await fs.createWriteStream(filePath, { autoClose: true })
+        const pipeFile = await new Promise((resolve, reject) =>
+          stream.pipe(out).on('error', err => {
+            console.log("err", err);
+            reject(false)
+          }).on('finish', () => {
+            // const stat = fs.statSync(filePath)
+            // console.log("size: ", stat["size"])
+            resolve(true)
+          })
+        );
+        if (pipeFile) {
+          s3Path = await upload(filePath, filename, mimetype)
+        }
+      } else {
+        errorTitle = "This file is too large"
       }
 
-      return { filename, mimetype, encoding, s3Path };
+      return { filename, mimetype, encoding, s3Path, errorTitle };
     },
     signUp: async (root, { name, email, password }, context) => {
       // 1. 檢查不能有重複註冊 email

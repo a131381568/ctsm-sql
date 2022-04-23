@@ -50,33 +50,37 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     let isAdminPage = false
     // if (isAdminPage) {
+    // console.log(req)
     console.log(req.body.operationName)
 
     // 每次請求時都檢查是否有 token
     const jwtStr = req.headers['authorization']
     const jwtToken = jwtStr.replace('Bearer ', '')
+    const fileSize = req.headers['content-length']
+
     if (jwtToken) {
       // console.log("有 jwtToken")
       const jwtInfo = await translateJWT(jwtToken)
-      return { jwtInfo };
+      if (req.body.operationName === 'SingleUpload') {
+        return { jwtInfo, fileSize }
+      } else {
+        return { jwtInfo }
+      }
+
     } else {
       // console.log("無 jwtToken")
       return {}
     }
-    // }
-  }
+  },
+  uploads: false
 });
 
 server.start().then(res => {
-
-  app.use(graphqlUploadExpress());
-
+  app.use(graphqlUploadExpress({ maxFileSize: 20000000, maxFiles: 1 }));
   server.applyMiddleware({ app, path: '/graphql' });
-
   // server.applyMiddleware({ app, path: '/specialUrl' });
   // app.get('/', (req, res) => res.send('Babel Working!'));
   // app.get('/test', (req, res) => res.json(server));
-
   app.listen({ port: 4000 }, () =>
     console.log('Now browse to http://localhost:4000' + server.graphqlPath)
   )
