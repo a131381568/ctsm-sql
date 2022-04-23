@@ -18,6 +18,8 @@ const {
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+import { getAllKeys, upload } from './aws-s3/sdk'
+
 // 定義 bcrypt 加密所需 saltRounds 次數
 const SALT_ROUNDS = 2;
 // 定義 jwt 所需 secret
@@ -615,21 +617,35 @@ const resolvers = {
 
     },
     singleUpload: async (_, { file }) => {
+      let s3Path = ""
       const { createReadStream, filename, mimetype, encoding } = await file;
       const stream = createReadStream();
+      const filePath = path.join(__dirname, "/images", filename)
+
+      // const fileList = await getAllKeys()
+      // console.log(`allKeys: ${JSON.stringify(fileList)}`)
 
       // const out = require('fs').createWriteStream('local-file-output.txt');
       // stream.pipe(out);
       // await finished(out);
 
-      const out = await require('fs').createWriteStream(path.join(__dirname, "/images", filename))
+      const out = await require('fs').createWriteStream(filePath)
 
-      await new Promise(res =>
-        stream.pipe(out)
-          .on("close", res)
+      const pipeFile = await new Promise((resolve, reject) =>
+        stream.pipe(out).on('finish', () => {
+        }).on("close", () => {
+          resolve(true)
+        }).on('error', err => {
+          console.log(err);
+          reject(false);
+        })
       );
 
-      return { filename, mimetype, encoding };
+      if (pipeFile) {
+        s3Path = await upload(filePath, filename, mimetype)
+      }
+
+      return { filename, mimetype, encoding, s3Path };
     },
     signUp: async (root, { name, email, password }, context) => {
       // 1. 檢查不能有重複註冊 email
