@@ -163,6 +163,8 @@ const typeDefs = gql`
     signUp(name: String, email: String!, password: String!): User
     login(email: String!, password: String!): LoginInfo
     extendExpired(userId: Int!, email: String!, oriReToken: String!): LoginInfo
+    setNewStargazer(stargazing_title: String, stargazing_latitude: Float, stargazing_longitude: Float, stargazing_image: String, stargazing_description: String, stargazing_address: String, published: Boolean): CommonResponse
+    deleteStargazer(stargazing_lid: String!): CommonResponse
   } 
 
 `

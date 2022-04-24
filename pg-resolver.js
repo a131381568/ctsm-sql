@@ -595,6 +595,7 @@ const resolvers = {
       // INSERT INTO science(postid, title, categoryid, updatetime, content) VALUES(
       //   '4847', '大氣視窗x', '天文觀測', 'observation', '2022-04-06', 'xxxxxx'
       // );
+
       await knex('science')
         .insert({
           postid: postid,
@@ -642,6 +643,14 @@ const resolvers = {
         );
         if (pipeFile) {
           s3Path = await upload(filePath, filename, mimetype)
+          if (s3Path) {
+            fs.unlink(filePath, function (err) {
+              if (err) {
+                return console.error(err);
+              }
+              console.log("檔案刪除成功");
+            });
+          }
         }
       } else {
         errorTitle = "This file is too large"
@@ -777,6 +786,41 @@ const resolvers = {
       } else {
         return emptyObj
       }
+    },
+    setNewStargazer: async (parent, args) => {
+      const { stargazing_title, stargazing_latitude, stargazing_longitude, stargazing_image, stargazing_description, stargazing_address, published } = args;
+      const commonResponse = { code: 0, message: '' };
+      const lastLid = await knex('stargazing_list').select('stargazing_lid', 'stargazing_orderid').orderBy('stargazing_lid', 'DESC').limit(1)
+      const insert = await knex('stargazing_list')
+        .insert({
+          stargazing_orderid: 1 + Number(lastLid[0].stargazing_orderid),
+          stargazing_title: stargazing_title,
+          stargazing_latitude: stargazing_latitude,
+          stargazing_longitude: stargazing_longitude,
+          stargazing_image: stargazing_image,
+          stargazing_description: stargazing_description,
+          stargazing_address: stargazing_address,
+          stargazing_lid: String(1 + Number(lastLid[0].stargazing_lid)),
+          published: published
+        })
+      if (insert.rowCount > 0) {
+        commonResponse.code = 1;
+        commonResponse.message = '新增成功'
+      } else {
+        commonResponse.code = -1;
+        commonResponse.message = '新增失敗'
+      }
+      return commonResponse
+    },
+    deleteStargazer: async (parent, args) => {
+      const { stargazing_lid } = args;
+      const commonResponse = { code: 1, message: 'delete stargazer success' };
+
+      await knex('stargazing_list')
+        .where('stargazing_lid', '=', stargazing_lid)
+        .update({ published: false })
+
+      return commonResponse
     }
   },
   Artist: {

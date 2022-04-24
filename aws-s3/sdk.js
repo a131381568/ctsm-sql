@@ -57,7 +57,7 @@ export const upload = async (tempPath, fileName, mimetype) => {
   } catch (error) {
     result = error;
   } finally {
-    console.dir(result);
+    // console.dir(result);
   }
   if (result) {
     result = "/" + process.env.AWS_BUCKET_FOLDER + "/" + fileName
