@@ -535,6 +535,25 @@ const resolvers = {
       };
 
     },
+    getSingleStargazer: async (_, args) => {
+      const { stargazing_lid } = args;
+      const result = await knex('stargazing_list').select('*').where('stargazing_lid', '=', stargazing_lid)
+      if (result.length === 1) {
+        return result[0];
+      } else {
+        return {
+          "stargazing_title": "",
+          "stargazing_latitude": 0,
+          "stargazing_longitude": 0,
+          "stargazing_image": "",
+          "stargazing_description": "",
+          "stargazing_address": "",
+          "stargazing_link": "",
+          "stargazing_lid": "",
+          "published": false
+        }
+      }
+    },
     me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
       let emptyObj = {
@@ -814,12 +833,35 @@ const resolvers = {
     },
     deleteStargazer: async (parent, args) => {
       const { stargazing_lid } = args;
-      const commonResponse = { code: 1, message: 'delete stargazer success' };
-
+      const commonResponse = { code: 1, message: '刪除成功' };
       await knex('stargazing_list')
         .where('stargazing_lid', '=', stargazing_lid)
         .update({ published: false })
+      return commonResponse
+    },
+    editStargazer: async (parent, args) => {
+      console.log(args)
 
+      const {
+        stargazing_title,
+        stargazing_latitude,
+        stargazing_longitude,
+        stargazing_image,
+        stargazing_description,
+        stargazing_address,
+        stargazing_lid
+      } = args;
+      const commonResponse = { code: 1, message: '編輯成功' };
+      await knex('stargazing_list')
+        .where('stargazing_lid', '=', stargazing_lid)
+        .update({
+          stargazing_title: stargazing_title,
+          stargazing_latitude: stargazing_latitude,
+          stargazing_longitude: stargazing_longitude,
+          stargazing_image: stargazing_image,
+          stargazing_description: stargazing_description,
+          stargazing_address: stargazing_address
+        })
       return commonResponse
     }
   },
