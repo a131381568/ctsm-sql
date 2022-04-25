@@ -888,6 +888,26 @@ const resolvers = {
         philosophy: philosophyRef
       })
       return commonResponse
+    },
+    mutAboutQuote: async (parent, args) => {
+      const {
+        quoteRef
+      } = args;
+      const commonResponse = { code: 1, message: '編輯成功' };
+      await knex('about_info').update({
+        quote: quoteRef
+      })
+      return commonResponse
+    },
+    mutAboutEpilogue: async (parent, args) => {
+      const {
+        epilogueRef
+      } = args;
+      const commonResponse = { code: 1, message: '編輯成功' };
+      await knex('about_info').update({
+        epilogue: epilogueRef
+      })
+      return commonResponse
     }
   },
   Artist: {

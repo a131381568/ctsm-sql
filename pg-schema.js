@@ -169,6 +169,8 @@ const typeDefs = gql`
     editStargazer(stargazing_title: String, stargazing_latitude: Float, stargazing_longitude: Float, stargazing_image: String, stargazing_description: String, stargazing_address: String, stargazing_lid: String): CommonResponse
     editHomeSlogan(pageTitle: String!, pageSubTitle: String!): CommonResponse
     mutAboutSlogan(sloganRef: String!, philosophyRef: String!): CommonResponse
+    mutAboutQuote(quoteRef: String!): CommonResponse
+    mutAboutEpilogue(epilogueRef: String!): CommonResponse
   } 
 `
 export default typeDefs;
