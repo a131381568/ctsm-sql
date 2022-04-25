@@ -840,8 +840,7 @@ const resolvers = {
       return commonResponse
     },
     editStargazer: async (parent, args) => {
-      console.log(args)
-
+      // console.log(args)
       const {
         stargazing_title,
         stargazing_latitude,
@@ -862,6 +861,32 @@ const resolvers = {
           stargazing_description: stargazing_description,
           stargazing_address: stargazing_address
         })
+      return commonResponse
+    },
+    editHomeSlogan: async (parent, args) => {
+      const {
+        pageTitle,
+        pageSubTitle
+      } = args;
+      const commonResponse = { code: 1, message: '編輯成功' };
+      await knex('page_info')
+        .where('page_route', '=', 'Home')
+        .update({
+          page_title: pageTitle,
+          sub_page_title: pageSubTitle
+        })
+      return commonResponse
+    },
+    mutAboutSlogan: async (parent, args) => {
+      const {
+        sloganRef,
+        philosophyRef
+      } = args;
+      const commonResponse = { code: 1, message: '編輯成功' };
+      await knex('about_info').update({
+        slogan: sloganRef,
+        philosophy: philosophyRef
+      })
       return commonResponse
     }
   },
