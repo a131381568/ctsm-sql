@@ -634,7 +634,8 @@ const resolvers = {
           categoryid: categoryid,
           updatetime: updatetime,
           content: content,
-          image: image
+          image: image,
+          published: true
         })
         .then(() => {
           commonResponse.code = 1;
@@ -648,6 +649,25 @@ const resolvers = {
           return commonResponse;
         });
 
+      return commonResponse
+    },
+    deletePost: async (parent, args) => {
+      const { postid } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('science')
+        .where('postid', '=', postid)
+        .update({ published: false }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '刪除成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '刪除失敗';
+          return commonResponse;
+        });
+      return commonResponse
     },
     singleUpload: async (_, { file }, content) => {
       const { fileSize } = content
