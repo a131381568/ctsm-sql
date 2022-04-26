@@ -12,7 +12,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    getSinglePost(postid: Int!): Artist
+    getSinglePost (postid: Int!): Artist
     artists (first: Int, last: Int, after: Int, before: Int, categoryid:String, pageNumber: Int): ArtistsConnection
     searchArtists (first: Int, last: Int, after: Int, before: Int, keyword:String): ArtistsConnection
     artistsCategories: [artistsCategory]
@@ -26,6 +26,7 @@ const typeDefs = gql`
     me: User
     stargazingPagi (pageNumber: Int, linesPerpage: Int): StargazingConnectionPush
     getSingleStargazer (stargazing_lid: String): Stargazing
+    getSingleCategory (categoryId: String!): artistsCategory
   }
 
   type Artist {
@@ -171,6 +172,9 @@ const typeDefs = gql`
     mutAboutSlogan(sloganRef: String!, philosophyRef: String!): CommonResponse
     mutAboutQuote(quoteRef: String!): CommonResponse
     mutAboutEpilogue(epilogueRef: String!): CommonResponse
+    setNewCategory(categoryName: String!, categoryId: String!): CommonResponse
+    deleteCategory(categoryId: String!): CommonResponse
+    mutCategory(categoryName: String!, categoryId: String!): CommonResponse
   } 
 `
 export default typeDefs;

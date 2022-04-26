@@ -443,7 +443,7 @@ const resolvers = {
       };
     },
     artistsCategories: async () => {
-      const result = await knex('post_categories').select('*')
+      const result = await knex('post_categories').select('*').where('published', '=', true)
       return result
     },
     pageInfo: async () => {
@@ -554,6 +554,18 @@ const resolvers = {
         }
       }
     },
+    getSingleCategory: async (_, args) => {
+      const { categoryId } = args;
+      const result = await knex('post_categories').select('*').where('post_category_id', '=', categoryId)
+      if (result.length === 1) {
+        return result[0];
+      } else {
+        return {
+          "post_category_name": "",
+          "post_category_id": ""
+        }
+      }
+    },
     me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
       let emptyObj = {
@@ -625,13 +637,14 @@ const resolvers = {
           image: image
         })
         .then(() => {
-          commonResponse.message = 'create post success';
+          commonResponse.code = 1;
+          commonResponse.message = '新增成功';
           return commonResponse;
         })
         .catch((error) => {
           console.error(error);
-          commonResponse.code = 1;
-          commonResponse.message = 'create post error';
+          commonResponse.code = -1;
+          commonResponse.message = '新增失敗';
           return commonResponse;
         });
 
@@ -833,10 +846,20 @@ const resolvers = {
     },
     deleteStargazer: async (parent, args) => {
       const { stargazing_lid } = args;
-      const commonResponse = { code: 1, message: '刪除成功' };
+      const commonResponse = { code: 0, message: '' };
       await knex('stargazing_list')
         .where('stargazing_lid', '=', stargazing_lid)
-        .update({ published: false })
+        .update({ published: false }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '刪除成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '刪除失敗';
+          return commonResponse;
+        });
       return commonResponse
     },
     editStargazer: async (parent, args) => {
@@ -850,7 +873,7 @@ const resolvers = {
         stargazing_address,
         stargazing_lid
       } = args;
-      const commonResponse = { code: 1, message: '編輯成功' };
+      const commonResponse = { code: 0, message: '' };
       await knex('stargazing_list')
         .where('stargazing_lid', '=', stargazing_lid)
         .update({
@@ -860,7 +883,17 @@ const resolvers = {
           stargazing_image: stargazing_image,
           stargazing_description: stargazing_description,
           stargazing_address: stargazing_address
+        }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '編輯成功';
+          return commonResponse;
         })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
       return commonResponse
     },
     editHomeSlogan: async (parent, args) => {
@@ -868,13 +901,23 @@ const resolvers = {
         pageTitle,
         pageSubTitle
       } = args;
-      const commonResponse = { code: 1, message: '編輯成功' };
+      const commonResponse = { code: 0, message: '' };
       await knex('page_info')
         .where('page_route', '=', 'Home')
         .update({
           page_title: pageTitle,
           sub_page_title: pageSubTitle
+        }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '編輯成功';
+          return commonResponse;
         })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
       return commonResponse
     },
     mutAboutSlogan: async (parent, args) => {
@@ -882,31 +925,125 @@ const resolvers = {
         sloganRef,
         philosophyRef
       } = args;
-      const commonResponse = { code: 1, message: '編輯成功' };
+      const commonResponse = { code: 0, message: '' };
       await knex('about_info').update({
         slogan: sloganRef,
         philosophy: philosophyRef
+      }).then(() => {
+        commonResponse.code = 1;
+        commonResponse.message = '編輯成功';
+        return commonResponse;
       })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
       return commonResponse
     },
     mutAboutQuote: async (parent, args) => {
       const {
         quoteRef
       } = args;
-      const commonResponse = { code: 1, message: '編輯成功' };
+      const commonResponse = { code: 0, message: '' };
       await knex('about_info').update({
         quote: quoteRef
+      }).then(() => {
+        commonResponse.code = 1;
+        commonResponse.message = '編輯成功';
+        return commonResponse;
       })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
       return commonResponse
     },
     mutAboutEpilogue: async (parent, args) => {
       const {
         epilogueRef
       } = args;
-      const commonResponse = { code: 1, message: '編輯成功' };
+      const commonResponse = { code: 0, message: '' };
       await knex('about_info').update({
         epilogue: epilogueRef
+      }).then(() => {
+        commonResponse.code = 1;
+        commonResponse.message = '編輯成功';
+        return commonResponse;
       })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    setNewCategory: async (parent, args) => {
+      const { categoryName, categoryId } = args;
+      const commonResponse = { code: 0, message: '' };
+      const orderid = await knex('post_categories')
+        .max('post_category_orderid')
+        .first();
+      await knex('post_categories')
+        .insert({
+          post_category_orderid: 1 + orderid.max,
+          post_category_name: categoryName,
+          post_category_id: categoryId,
+          published: true
+        })
+        .then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '成功新增分類';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '新增失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    deleteCategory: async (parent, args) => {
+      const { categoryId } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('post_categories')
+        .where('post_category_id', '=', categoryId)
+        .update({ published: false }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '刪除成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '刪除失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    mutCategory: async (parent, args) => {
+      const { categoryName, categoryId } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('post_categories')
+        .where('post_category_id', '=', categoryId)
+        .update({
+          post_category_name: categoryName
+        }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '編輯成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
       return commonResponse
     }
   },
