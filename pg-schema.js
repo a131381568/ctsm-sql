@@ -176,6 +176,7 @@ const typeDefs = gql`
     setNewCategory(categoryName: String!, categoryId: String!): CommonResponse
     deleteCategory(categoryId: String!): CommonResponse
     mutCategory(categoryName: String!, categoryId: String!): CommonResponse
+    mutSinglePost(postid: Int!, title: String, categoryid: String, content: String, image: String): CommonResponse
   } 
 `
 export default typeDefs;

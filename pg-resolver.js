@@ -87,10 +87,23 @@ const isAuthenticated = resolverFunc => (parent, args, context) => {
 const resolvers = {
   Query: {
     getSinglePost: async (_, args) => {
-      const result = await knex('science').select('*').whereNot('published', '=', false)
       const { postid } = args
-      const filterList = result.filter((item) => item.postid === postid)[0]
-      return filterList;
+      const result = await knex('science').select('*').whereNot('published', '=', false).where('postid', '=', postid)
+      // const result = await knex('science').select('*').whereNot('published', '=', false)
+      // const filterList = result.filter((item) => item.postid === postid)[0]
+      // return filterList;
+      if (result.length === 1) {
+        return result[0];
+      } else {
+        return {
+          "categoryid": "",
+          "content": "",
+          "image": "",
+          "postid": 0,
+          "title": "",
+          "updatetime": ""
+        }
+      }
     },
     artistsPagi: async (root, args, context, info) => {
 
@@ -665,6 +678,27 @@ const resolvers = {
           console.error(error);
           commonResponse.code = -1;
           commonResponse.message = '新增失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    mutSinglePost: async (parent, args) => {
+      const { postid, title, categoryid, content, image } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('science').where('postid', '=', postid).update({
+        title: title,
+        categoryid: categoryid,
+        content: content,
+        image: image
+      }).then(() => {
+        commonResponse.code = 1;
+        commonResponse.message = '編輯成功';
+        return commonResponse;
+      })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
           return commonResponse;
         });
       return commonResponse
