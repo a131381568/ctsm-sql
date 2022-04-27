@@ -28,6 +28,7 @@ const typeDefs = gql`
     getSingleStargazer (stargazing_lid: String): Stargazing
     getSingleCategory (categoryId: String!): artistsCategory
     getSingleOrganization (facilities_orderid: Int!): Facility
+    getSingleObservatory (observatory_category_id: String!): Observatory
   }
 
   type Artist {
@@ -184,6 +185,8 @@ const typeDefs = gql`
     setNewOrganization(facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
     mutOrganization(facilities_orderid: Int!, facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
     deleteObservatories(observatory_category_id: String!): CommonResponse
+    setNewObservatories(observatory_category_name: String!, observatory_category_id: String!, observatory_post_content: String!):CommonResponse
+    mutObservatories(observatory_category_name: String!, observatory_category_id: String!, observatory_post_content: String!):CommonResponse
   } 
 `
 export default typeDefs;

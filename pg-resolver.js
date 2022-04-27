@@ -595,6 +595,19 @@ const resolvers = {
         }
       }
     },
+    getSingleObservatory: async (_, args) => {
+      const { observatory_category_id } = args;
+      const result = await knex('observatories_list').select('*').where('observatory_category_id', '=', observatory_category_id)
+      if (result.length === 1) {
+        return result[0];
+      } else {
+        return {
+          "observatory_category_name": "",
+          "observatory_category_id": "",
+          "observatory_post_content": "",
+        }
+      }
+    },
     me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
       let emptyObj = {
@@ -1218,6 +1231,50 @@ const resolvers = {
           console.error(error);
           commonResponse.code = -1;
           commonResponse.message = '刪除失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    setNewObservatories: async (parent, args) => {
+      const { observatory_category_name, observatory_category_id, observatory_post_content } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('observatories_list')
+        .insert({
+          observatory_category_name: observatory_category_name,
+          observatory_category_id: observatory_category_id,
+          observatory_post_content: observatory_post_content,
+          published: true
+        })
+        .then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '新增成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '新增失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    mutObservatories: async (parent, args) => {
+      const { observatory_category_name, observatory_category_id, observatory_post_content } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('observatories_list')
+        .where('observatory_category_id', '=', observatory_category_id)
+        .update({
+          observatory_category_name: observatory_category_name,
+          observatory_post_content: observatory_post_content,
+        }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '編輯成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
           return commonResponse;
         });
       return commonResponse
