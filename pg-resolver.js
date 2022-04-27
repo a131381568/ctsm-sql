@@ -621,18 +621,37 @@ const resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
     setNewPost: async (parent, args) => {
-      const { postid, title, categoryid, updatetime, content, image } = args;
+      const { title, categoryid, content, image } = args;
       const commonResponse = { code: 0, message: '' };
-      // INSERT INTO science(postid, title, categoryid, updatetime, content) VALUES(
-      //   '4847', '大氣視窗x', '天文觀測', 'observation', '2022-04-06', 'xxxxxx'
-      // );
-
+      const changeDate = () => {
+        let display = ""
+        const ts = new Date();
+        const year = ts.getFullYear()
+        let date = ts.getDate()
+        let month = ts.getMonth() + 1
+        if (String(month).length === 1) {
+          display = year + "-" + "0" + month
+        } else {
+          display = year + "-" + month
+        }
+        if (String(date).length === 1) {
+          display = display + "-" + "0" + date
+        } else {
+          display = display + "-" + date
+        }
+        return display
+      }
+      const maxPostId = await knex('science')
+        .max('postid')
+        .first();
+      const setTime = changeDate()
+      const newId = 1 + maxPostId.max
       await knex('science')
         .insert({
-          postid: postid,
+          postid: newId,
           title: title,
           categoryid: categoryid,
-          updatetime: updatetime,
+          updatetime: setTime,
           content: content,
           image: image,
           published: true
@@ -648,7 +667,6 @@ const resolvers = {
           commonResponse.message = '新增失敗';
           return commonResponse;
         });
-
       return commonResponse
     },
     deletePost: async (parent, args) => {

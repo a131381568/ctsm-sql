@@ -160,7 +160,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    setNewPost(postid: Int, title: String, categoryid: String, updatetime: String, content: String, image: String): CommonResponse
+    setNewPost(title: String, categoryid: String, content: String, image: String): CommonResponse
     deletePost(postid: Int): CommonResponse
     singleUpload(file: Upload!): File!
     signUp(name: String, email: String!, password: String!): User
