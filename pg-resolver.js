@@ -1180,6 +1180,29 @@ const resolvers = {
           return commonResponse;
         });
       return commonResponse
+    },
+    mutOrganization: async (parent, args) => {
+      const { facilities_orderid, facilities_title, facilities_description, facilities_image, facilities_link } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('facilities_list')
+        .where('facilities_orderid', '=', facilities_orderid)
+        .update({
+          facilities_title: facilities_title,
+          facilities_description: facilities_description,
+          facilities_image: facilities_image,
+          facilities_link: facilities_link,
+        }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '編輯成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
+      return commonResponse
     }
   },
   Artist: {

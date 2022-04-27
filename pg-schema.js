@@ -181,6 +181,7 @@ const typeDefs = gql`
     mutSinglePost(postid: Int!, title: String, categoryid: String, content: String, image: String): CommonResponse
     deleteOrganization(facilities_orderid: Int!): CommonResponse
     setNewOrganization(facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
+    mutOrganization(facilities_orderid: Int!, facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
   } 
 `
 export default typeDefs;
