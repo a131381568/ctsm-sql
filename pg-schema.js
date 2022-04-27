@@ -100,6 +100,7 @@ const typeDefs = gql`
   }
 
   type Facility{
+    facilities_orderid: Int
     facilities_title: String
     facilities_description: String
     facilities_image: String
@@ -177,6 +178,7 @@ const typeDefs = gql`
     deleteCategory(categoryId: String!): CommonResponse
     mutCategory(categoryName: String!, categoryId: String!): CommonResponse
     mutSinglePost(postid: Int!, title: String, categoryid: String, content: String, image: String): CommonResponse
+    deleteOrganization(facilities_orderid: Int!): CommonResponse
   } 
 `
 export default typeDefs;

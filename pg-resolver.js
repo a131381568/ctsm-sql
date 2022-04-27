@@ -478,7 +478,7 @@ const resolvers = {
       }
     },
     facilitiesList: async () => {
-      const result = await knex('facilities_list').select('*')
+      const result = await knex('facilities_list').select('*').whereNot('published', '=', false)
       if (result.length === 0) {
         return []
       } else {
@@ -1117,7 +1117,25 @@ const resolvers = {
           return commonResponse;
         });
       return commonResponse
-    }
+    },
+    deleteOrganization: async (parent, args) => {
+      const { facilities_orderid } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('facilities_list')
+        .where('facilities_orderid', '=', facilities_orderid)
+        .update({ published: false }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '刪除成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '刪除失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
   },
   Artist: {
     description: (parent, args, context) => {
