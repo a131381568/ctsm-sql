@@ -486,7 +486,7 @@ const resolvers = {
       }
     },
     observatoriesList: async () => {
-      const result = await knex('observatories_list').select('*')
+      const result = await knex('observatories_list').select('*').whereNot('published', '=', false)
       if (result.length === 0) {
         return []
       } else {
@@ -1200,6 +1200,24 @@ const resolvers = {
           console.error(error);
           commonResponse.code = -1;
           commonResponse.message = '編輯失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    },
+    deleteObservatories: async (parent, args) => {
+      const { observatory_category_id } = args;
+      const commonResponse = { code: 0, message: '' };
+      await knex('observatories_list')
+        .where('observatory_category_id', '=', observatory_category_id)
+        .update({ published: false }).then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '刪除成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '刪除失敗';
           return commonResponse;
         });
       return commonResponse

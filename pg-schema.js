@@ -112,6 +112,7 @@ const typeDefs = gql`
     observatory_category_name: String
     observatory_category_id: String
     observatory_post_content: String
+    published: Boolean
   }
 
   type Stargazing{
@@ -182,6 +183,7 @@ const typeDefs = gql`
     deleteOrganization(facilities_orderid: Int!): CommonResponse
     setNewOrganization(facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
     mutOrganization(facilities_orderid: Int!, facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
+    deleteObservatories(observatory_category_id: String!): CommonResponse
   } 
 `
 export default typeDefs;
