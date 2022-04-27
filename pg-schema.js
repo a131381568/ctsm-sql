@@ -27,6 +27,7 @@ const typeDefs = gql`
     stargazingPagi (pageNumber: Int, linesPerpage: Int): StargazingConnectionPush
     getSingleStargazer (stargazing_lid: String): Stargazing
     getSingleCategory (categoryId: String!): artistsCategory
+    getSingleOrganization (facilities_orderid: Int!): Facility
   }
 
   type Artist {
@@ -179,6 +180,7 @@ const typeDefs = gql`
     mutCategory(categoryName: String!, categoryId: String!): CommonResponse
     mutSinglePost(postid: Int!, title: String, categoryid: String, content: String, image: String): CommonResponse
     deleteOrganization(facilities_orderid: Int!): CommonResponse
+    setNewOrganization(facilities_title: String!, facilities_description: String!,facilities_image: String!,facilities_link: String!,): CommonResponse
   } 
 `
 export default typeDefs;

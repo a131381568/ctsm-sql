@@ -579,6 +579,22 @@ const resolvers = {
         }
       }
     },
+    getSingleOrganization: async (_, args) => {
+      const { facilities_orderid } = args;
+      const result = await knex('facilities_list').select('*').where('facilities_orderid', '=', facilities_orderid)
+      if (result.length === 1) {
+        return result[0];
+      } else {
+        return {
+          "facilities_orderid": 0,
+          "facilities_title": "",
+          "facilities_description": "",
+          "facilities_image": "",
+          "facilities_link": "",
+          "facilities_published": false
+        }
+      }
+    },
     me: isAuthenticated((root, args, { me }) => {
       // const jwtStr = Object.values(context).join("")
       let emptyObj = {
@@ -1136,6 +1152,35 @@ const resolvers = {
         });
       return commonResponse
     },
+    setNewOrganization: async (parent, args) => {
+      const { facilities_title, facilities_description, facilities_image, facilities_link } = args;
+      const commonResponse = { code: 0, message: '' };
+      const maxPostId = await knex('facilities_list')
+        .max('facilities_orderid')
+        .first();
+      const newId = 1 + maxPostId.max
+      await knex('facilities_list')
+        .insert({
+          facilities_orderid: newId,
+          facilities_title: facilities_title,
+          facilities_description: facilities_description,
+          facilities_image: facilities_image,
+          facilities_link: facilities_link,
+          published: true
+        })
+        .then(() => {
+          commonResponse.code = 1;
+          commonResponse.message = '新增成功';
+          return commonResponse;
+        })
+        .catch((error) => {
+          console.error(error);
+          commonResponse.code = -1;
+          commonResponse.message = '新增失敗';
+          return commonResponse;
+        });
+      return commonResponse
+    }
   },
   Artist: {
     description: (parent, args, context) => {
