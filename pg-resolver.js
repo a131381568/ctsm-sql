@@ -623,7 +623,7 @@ const resolvers = {
         return display + " " + hour + ":" + minutes + ":" + sec
       }
 
-      console.log(me)
+      // console.log(me)
       // 正常回傳
       if (Object.keys(me).length > 0) {
         console.log(changeDate(me.iat * 1000), changeDate(me.exp * 1000))
@@ -840,7 +840,7 @@ const resolvers = {
       // 預設空值
       const emptyObj = {
         name: "",
-        id: null,
+        uid: null,
         email: "",
         iat: null,
         token: "",
@@ -864,8 +864,13 @@ const resolvers = {
       // if (resolveOriRetoken) throw new Error('User ID Not Exists');
 
       // 查詢此 ID 使用者是否存在
-      const user = users.find(user => user.id === userId);
-      // if (!user) throw new Error('User ID Not Exists');
+      const users = await knex('users').select('*').where('uid', '=', userId)
+      console.log(users)
+      let user = null
+      if (users.length > 0) {
+        user = users[0]
+      }
+      if (!user) throw new Error('User ID Not Exists');
 
       console.log("resolveOriRetokenIsERR: ", resolveOriRetokenIsERR)
       console.log("oriToken: ", oriToken)

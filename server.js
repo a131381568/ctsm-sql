@@ -50,9 +50,9 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     let isAdminPage = false
     // if (isAdminPage) {
-    // console.log(req)
+    // console.log("----------------")
     console.log(req.body.operationName)
-
+    // console.log("----------------")
     // 每次請求時都檢查是否有 token
     const jwtStr = req.headers['authorization']
     const jwtToken = jwtStr.replace('Bearer ', '')
