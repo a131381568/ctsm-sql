@@ -45,8 +45,13 @@ const findUserByUserId = userId =>
   users.find(user => user.id === Number(userId));
 
 const isAuthenticated = resolverFunc => (parent, args, context) => {
-  if (!context.me) throw new ForbiddenError("Not logged in.");
-  return resolverFunc.apply(null, [parent, args, context]);
+  const nowTimeStamp = Math.floor(new Date().getTime() / 1000)
+  console.log("isAuthenticated-context: ", context)
+  if (context.jwtInfo && context.jwtInfo.exp > nowTimeStamp) {
+    return resolverFunc.apply(null, [parent, args, context]);
+  } else {
+    throw new ForbiddenError("Not logged in.");
+  }
 };
 
 
@@ -586,7 +591,7 @@ const resolvers = {
       // const jwtStr = Object.values(context).join("")
       let emptyObj = {
         name: "",
-        id: null,
+        uid: null,
         email: "",
         iat: null,
         token: "",
@@ -805,7 +810,7 @@ const resolvers = {
       }
       if (user && passwordIsValid) {
         // 成功則回傳 token
-        const mainToken = await createToken(user, '30m')
+        const mainToken = await createToken(user, '10s')
         const refreshToken = await createToken(user, '15 days')
         const mainInfo = await jwt.verify(mainToken, SECRET)
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
@@ -836,7 +841,11 @@ const resolvers = {
         return emptyObj
       }
     },
-    extendExpired: async (root, { userId, email, oriReToken }, context) => {
+    extendExpired: async (root, { oriReToken }, context) => {
+      let oriReFreshEmail = ""
+      let oriReFreshExp = 0
+      const nowTimeStamp = Math.floor(new Date().getTime() / 1000)
+
       // 預設空值
       const emptyObj = {
         name: "",
@@ -853,41 +862,45 @@ const resolvers = {
 
       // 解析 原本的 token 是否過期
       const oriToken = context.jwtInfo.errorTitle
-      console.log("extendExpired-oriToken: ", oriToken)
+      // console.log("extendExpired-oriToken: ", oriToken)
 
       // 解析 refresh 是否過期
-      const resolveOriRetokenIsERR = await jwt.verify(oriReToken, SECRET, function (err) {
+      const resolveOriRetokenIsERR = await jwt.verify(oriReToken, SECRET, function (err, result) {
         if (err) {
           return true
+        } else {
+          oriReFreshEmail = result.email
+          oriReFreshExp = result.exp
+          if (oriReFreshExp > nowTimeStamp) {
+            return false
+          } else {
+            return true
+          }
         }
       });
-      // if (resolveOriRetoken) throw new Error('User ID Not Exists');
 
-      // 查詢此 ID 使用者是否存在
-      const users = await knex('users').select('*').where('uid', '=', userId)
-      console.log(users)
+      // 查詢此使用者 email 是否存在
+      const users = await knex('users').select('*').where('email', '=', oriReFreshEmail)
       let user = null
       if (users.length > 0) {
         user = users[0]
       }
-      if (!user) throw new Error('User ID Not Exists');
-
-      console.log("resolveOriRetokenIsERR: ", resolveOriRetokenIsERR)
-      console.log("oriToken: ", oriToken)
-      console.log("user: ", user)
-      console.log("email: ", email)
+      // if (resolveOriRetoken) throw new Error('User ID Not Exists');
+      // console.log("resolveOriRetokenIsERR: ", resolveOriRetokenIsERR)
+      // console.log("oriToken: ", oriToken)
+      // console.log("user: ", user)
 
       // 符合條件才回傳查詢
-      if (!resolveOriRetokenIsERR && oriToken === "TokenExpiredError" && user.email === email) {
+      if (!resolveOriRetokenIsERR && oriToken === "TokenExpiredError" && user.email === oriReFreshEmail) {
         console.log("符合條件")
         // 重新製作 JWT
-        const mainToken = await createToken(user, '30m')
+        const mainToken = await createToken(user, '10s')
         const refreshToken = await createToken(user, '15 days')
         const mainInfo = await jwt.verify(mainToken, SECRET)
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
         const jwtObj = {
           name: mainInfo.name,
-          id: mainInfo.id,
+          uid: user.uid,
           email: mainInfo.email,
           iat: mainInfo.iat,
           token: mainToken,
@@ -895,7 +908,6 @@ const resolvers = {
           refreshToken: refreshToken,
           refreshExp: refreshInfo.exp,
         }
-        // console.log("extendExpired:", jwtObj)
         return jwtObj
       } else {
         return emptyObj
@@ -1216,7 +1228,7 @@ const resolvers = {
         });
       return commonResponse
     },
-    setNewObservatories: async (parent, args) => {
+    setNewObservatories: isAuthenticated(async (parent, args) => {
       const { observatory_category_name, observatory_category_id, observatory_post_content } = args;
       const commonResponse = { code: 0, message: '' };
       await knex('observatories_list')
@@ -1238,7 +1250,7 @@ const resolvers = {
           return commonResponse;
         });
       return commonResponse
-    },
+    }),
     mutObservatories: async (parent, args) => {
       const { observatory_category_name, observatory_category_id, observatory_post_content } = args;
       const commonResponse = { code: 0, message: '' };
