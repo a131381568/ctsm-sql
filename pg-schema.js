@@ -139,7 +139,7 @@ const typeDefs = gql`
   }
 
   type User {
-    id: ID!
+    uid: ID!
     email: String!
     name: String
     iat: Int
@@ -152,7 +152,7 @@ const typeDefs = gql`
 
   type LoginInfo {
     name: String
-    id: ID
+    uid: ID
     email: String
     iat: Int
     token: String

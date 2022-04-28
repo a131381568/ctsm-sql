@@ -26,44 +26,10 @@ const SALT_ROUNDS = 2;
 const SECRET = process.env.BE_JWT_SECRET;
 
 // 儲存使用者資訊
-const users = [
-  {
-    id: 7613,
-    email: "allen@test.com",
-    password: "$2b$04$wcwaquqi5ea1Ho0aKwkZ0e51/RUkg6SGxaumo8fxzILDmcrv4OBIO", // 123456
-    name: "Allen",
-    age: 30,
-    friendIds: [1, 2, 3, 4, 5]
-  },
-  {
-    id: 1,
-    email: "fong@test.com",
-    password: "$2b$04$wcwaquqi5ea1Ho0aKwkZ0e51/RUkg6SGxaumo8fxzILDmcrv4OBIO", // 123456
-    name: "Fong",
-    age: 23,
-    friendIds: [2, 3]
-  },
-  {
-    id: 2,
-    email: "kevin@test.com",
-    passwrod: "$2b$04$uy73IdY9HVZrIENuLwZ3k./0azDvlChLyY1ht/73N4YfEZntgChbe", // 123456
-    name: "Kevin",
-    age: 40,
-    friendIds: [1]
-  },
-  {
-    id: 3,
-    email: "mary@test.com",
-    password: "$2b$04$UmERaT7uP4hRqmlheiRHbOwGEhskNw05GHYucU73JRf8LgWaqWpTy", // 123456
-    name: "Mary",
-    age: 18,
-    friendIds: [1]
-  }
-];
 const hash = text => bcrypt.hash(text, SALT_ROUNDS);
 const addUser = ({ name, email, password }) => (
   users[users.length] = {
-    id: users[users.length - 1].id + 1,
+    uid: users[users.length - 1].uid + 1,
     name,
     email,
     password
@@ -89,9 +55,17 @@ const resolvers = {
     getSinglePost: async (_, args) => {
       const { postid } = args
       const result = await knex('science').select('*').whereNot('published', '=', false).where('postid', '=', postid)
+
+      // ##### innerJoin #####
+      // const result = await knex('post_categories').select('postid', 'title', 'categoryid', 'updatetime', 'content', 'image', 'post_category_name').innerJoin('science', function () {
+      //   this.on('science.categoryid', '=', 'post_categories.post_category_id')
+      // }).where({ 'science.postid': postid, 'science.published': true })
+
+      // ##### filter #####
       // const result = await knex('science').select('*').whereNot('published', '=', false)
       // const filterList = result.filter((item) => item.postid === postid)[0]
       // return filterList;
+
       if (result.length === 1) {
         return result[0];
       } else {
@@ -793,11 +767,12 @@ const resolvers = {
     },
     signUp: async (root, { name, email, password }, context) => {
       // 1. 檢查不能有重複註冊 email
-      const isUserEmailDuplicate = users.some(user => user.email === email);
-      if (isUserEmailDuplicate) throw new Error('User Email Duplicate');
+      // const isUserEmailDuplicate = users.some(user => user.email === email);
+      // if (isUserEmailDuplicate) throw new Error('User Email Duplicate');
 
       // 2. 將 passwrod 加密再存進去。非常重要 !!
       const hashedPassword = await hash(password, SALT_ROUNDS);
+
       // 3. 建立新 user
       const newUser = await addUser({ name, email, password: hashedPassword });
 
@@ -807,7 +782,7 @@ const resolvers = {
       // 預設空值
       const emptyObj = {
         name: "",
-        id: null,
+        uid: null,
         email: "",
         iat: null,
         token: "",
@@ -818,15 +793,16 @@ const resolvers = {
         errorMsg: ""
       }
       let passwordIsValid = false
-
       // 透過 email 找到相對應的 user
-      const user = users.find(user => user.email === email);
-
+      const users = await knex('users').select('*').where('email', '=', email)
+      let user = null
+      if (users.length > 0) {
+        user = users[0]
+      }
       // 將傳進來的 password 與資料庫存的 user.password 做比對
       if (user) {
         passwordIsValid = await bcrypt.compare(password, user.password);
       }
-
       if (user && passwordIsValid) {
         // 成功則回傳 token
         const mainToken = await createToken(user, '30m')
@@ -835,7 +811,7 @@ const resolvers = {
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
         const jwtObj = {
           name: mainInfo.name,
-          id: mainInfo.id,
+          uid: user.uid,
           email: mainInfo.email,
           iat: mainInfo.iat,
           token: mainToken,
