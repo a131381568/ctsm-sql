@@ -810,7 +810,7 @@ const resolvers = {
       }
       if (user && passwordIsValid) {
         // 成功則回傳 token
-        const mainToken = await createToken(user, '10s')
+        const mainToken = await createToken(user, '40m')
         const refreshToken = await createToken(user, '15 days')
         const mainInfo = await jwt.verify(mainToken, SECRET)
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
@@ -894,7 +894,7 @@ const resolvers = {
       if (!resolveOriRetokenIsERR && oriToken === "TokenExpiredError" && user.email === oriReFreshEmail) {
         console.log("符合條件")
         // 重新製作 JWT
-        const mainToken = await createToken(user, '10s')
+        const mainToken = await createToken(user, '40m')
         const refreshToken = await createToken(user, '15 days')
         const mainInfo = await jwt.verify(mainToken, SECRET)
         const refreshInfo = await jwt.verify(refreshToken, SECRET)
