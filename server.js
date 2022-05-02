@@ -2,13 +2,21 @@ require('dotenv').config({
   path: ".env." + process.env.NODE_ENV
 })
 
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true
+}
+
 const { ApolloServer, gql } = require('apollo-server-express');
 const express = require('express');
 const app = express();
 const { graphqlUploadExpress } = require('graphql-upload');
 
-import typeDefs from './pg-schema';
-import resolvers from './pg-resolver';
+const typeDefs = require('./psql/schema.js');
+const resolvers = require('./psql/resolver.js');
+
+// import typeDefs from './psql/schema';
+// import resolvers from './psql/resolver';
 
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.BE_JWT_SECRET;
@@ -45,6 +53,7 @@ const translateJWT = async (jwtStr) => {
 }
 
 const server = new ApolloServer({
+  cors: cors(corsOptions),
   typeDefs,
   resolvers,
   context: async ({ req }) => {

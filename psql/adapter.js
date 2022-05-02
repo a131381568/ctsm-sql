@@ -18,4 +18,5 @@ const knex = require('knex')({
   connection: connectStr
 });
 
-export default knex 
+// export default knex 
+module.exports = knex

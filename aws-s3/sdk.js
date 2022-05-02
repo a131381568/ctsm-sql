@@ -21,7 +21,8 @@ const s3Client = new AWS.S3();
 /**
  * AWS S3 檔案儲存
  */
-export const saveToS3 = async (tempPath, fileName, mimetype) => {
+// export const saveToS3
+const saveToS3 = async (tempPath, fileName, mimetype) => {
   return new Promise((resolve, reject) => {
     // 檔案讀取
     fs.readFile(tempPath, (err, data) => {
@@ -50,7 +51,8 @@ export const saveToS3 = async (tempPath, fileName, mimetype) => {
 /**
  * AWS S3 上傳檔案
  */
-export const upload = async (tempPath, fileName, mimetype) => {
+// export const upload 
+const upload = async (tempPath, fileName, mimetype) => {
   let result = null;
   try {
     result = await saveToS3(tempPath, fileName, mimetype);
@@ -76,7 +78,8 @@ const params = {
   Bucket: "s3-bucket-web"
 };
 
-export const getAllKeys = async () => {
+// export const getAllKeys = 
+const getAllKeys = async () => {
   const response = await s3Client.listObjectsV2(params).promise();
   response.Contents.forEach((content) => {
     allKeys.push({
@@ -91,3 +94,5 @@ export const getAllKeys = async () => {
   }
   return allKeys;
 }
+
+module.exports = { getAllKeys, upload }

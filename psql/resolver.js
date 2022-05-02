@@ -7,7 +7,8 @@ const {
   AuthenticationError
 } = require("apollo-server-core");
 
-import knex from './psql-adapter'
+// import knex from './adapter'
+const knex = require('./adapter');
 const path = require('path');
 const { finished } = require('stream/promises');
 const {
@@ -18,7 +19,8 @@ const {
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-import { getAllKeys, upload } from './aws-s3/sdk'
+// import { getAllKeys, upload } from '../aws-s3/sdk'
+const { getAllKeys, upload } = require('../aws-s3/sdk');
 
 // 定義 bcrypt 加密所需 saltRounds 次數
 const SALT_ROUNDS = 2;
@@ -734,7 +736,7 @@ const resolvers = {
       const fs = require('fs');
       const { createReadStream, filename, mimetype, encoding } = await file;
       const stream = createReadStream();
-      const filePath = path.join(__dirname, "/images", filename)
+      const filePath = path.join(__dirname, "../images", filename)
       let s3Path = ""
       let errorTitle = ""
 
@@ -1283,4 +1285,5 @@ const resolvers = {
   }
 }
 
-export default resolvers;
+// export default resolvers;
+module.exports = resolvers

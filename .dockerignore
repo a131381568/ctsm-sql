@@ -1,0 +1,11 @@
+.git
+.DS_Store
+node_modules
+*.log
+Dockerfile*
+docker-compose*
+.dockerignore
+.gitattributes
+.gitignore
+package-lock.json
+.vscode

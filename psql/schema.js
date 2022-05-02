@@ -189,4 +189,6 @@ const typeDefs = gql`
     mutObservatories(observatory_category_name: String!, observatory_category_id: String!, observatory_post_content: String!):CommonResponse
   } 
 `
-export default typeDefs;
+// export default typeDefs;
+
+module.exports = typeDefs

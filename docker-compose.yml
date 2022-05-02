@@ -2,7 +2,22 @@ version: '3.6'   # Docker Engine release 18.02.0+
 
 services:
 
+  nginx:
+    container_name: 'nginx'
+    image: nginx:alpine
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    links:
+      - node
+      - postgres
+    ports:
+      - 80:80
+  node:
+    container_name: 'node'
+    build: .
+
   postgres:
+    container_name: 'postgres'
     image: postgres
     restart: always
     environment:
