@@ -53,7 +53,6 @@ const translateJWT = async (jwtStr) => {
 }
 
 const server = new ApolloServer({
-  cors: cors(corsOptions),
   typeDefs,
   resolvers,
   context: async ({ req }) => {
@@ -86,7 +85,11 @@ const server = new ApolloServer({
 
 server.start().then(res => {
   app.use(graphqlUploadExpress({ maxFileSize: 20000000, maxFiles: 1 }));
-  server.applyMiddleware({ app, path: '/graphql' });
+  server.applyMiddleware({
+    cors: corsOptions,
+    app,
+    path: '/graphql'
+  });
   // server.applyMiddleware({ app, path: '/specialUrl' });
   // app.get('/', (req, res) => res.send('Babel Working!'));
   // app.get('/test', (req, res) => res.json(server));

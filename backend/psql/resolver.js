@@ -9,6 +9,7 @@ const {
 
 // import knex from './adapter'
 const knex = require('./adapter');
+console.log(knex)
 const path = require('path');
 const { finished } = require('stream/promises');
 const {

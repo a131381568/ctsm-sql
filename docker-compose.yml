@@ -6,28 +6,64 @@ services:
     container_name: 'nginx'
     image: nginx:alpine
     volumes:
-      - ./nginx:/etc/nginx/conf.d
+      - ./frontend:/etc/nginx/html
+      - ./nginx/default.conf:/etc/nginx/nginx.conf
     links:
       - node
       - postgres
     ports:
-      - 80:80
+      - "80:80"
+
   node:
     container_name: 'node'
-    build: .
+    build:
+      context: ./backend
+    volumes:
+      - backend-data:/var/lib/backend
+    links:
+      - postgres
+    environment:
+      BE_DATABASE: ${BE_DATABASE}
+      BE_USER: ${BE_USER}
+      BE_PASSWORD: ${BE_PASSWORD}
+      BE_PORT: ${BE_PORT}
+      BE_HOST: postgres
+    ports:
+      - "4000:4000"
+    networks: 
+      - postgres
+    depends_on:
+      - "postgres"
 
   postgres:
     container_name: 'postgres'
     image: postgres
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=%Euk6kBk   # Change this password!
+      BE_DATABASE: ${BE_DATABASE}
+      BE_USER: ${BE_USER}
+      BE_PASSWORD: ${BE_PASSWORD}
+      BE_PORT: ${BE_PORT}
+      BE_HOST: ${BE_HOST}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      start_period: 10s
+      timeout: 4s
+      retries: 3
     ports:
       - "5432:5432"
+    networks:
+      - postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-volumes:
 
+networks:
+  postgres:
+    driver: bridge
+
+
+volumes:
+  backend-data:
   postgres-data:

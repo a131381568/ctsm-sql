@@ -10,6 +10,7 @@ const connectStr = {
   user: process.env.BE_USER,
   password: process.env.BE_PASSWORD
 };
+
 // const pgp = pgPromise({});
 // const psql = pgp(connectStr);
 
