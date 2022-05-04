@@ -9,7 +9,7 @@ const {
 
 // import knex from './adapter'
 const knex = require('./adapter');
-console.log(knex)
+
 const path = require('path');
 const { finished } = require('stream/promises');
 const {
@@ -832,15 +832,15 @@ const resolvers = {
         return jwtObj
       } else if (!user) {
         // 找不到使用者
-        emptyObj.errorMsg = "Email Not Exists"
+        emptyObj.errorMsg = "登入失敗"
         return emptyObj
       } else if (!passwordIsValid) {
         // 密碼錯誤
-        emptyObj.errorMsg = "Wrong Password"
+        emptyObj.errorMsg = "登入失敗"
         return emptyObj
       } else {
         // 其他情況
-        emptyObj.errorMsg = "Wrong Operation"
+        emptyObj.errorMsg = "登入失敗"
         return emptyObj
       }
     },
