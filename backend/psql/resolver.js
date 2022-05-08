@@ -468,7 +468,7 @@ const resolvers = {
       }
     },
     observatoriesList: async () => {
-      const result = await knex('observatories_list').select('*').whereNot('published', '=', false).orderBy('facilities_orderid', 'ASC')
+      const result = await knex('observatories_list').select('*').whereNot('published', '=', false).orderBy('observatory_orderid', 'ASC')
       if (result.length === 0) {
         return []
       } else {
