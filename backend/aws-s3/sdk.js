@@ -62,7 +62,7 @@ const upload = async (tempPath, fileName, mimetype) => {
     // console.dir(result);
   }
   if (result) {
-    result = "/" + process.env.AWS_BUCKET_FOLDER + "/" + fileName
+    result = process.env.AWS_HOST + "/" + process.env.AWS_BUCKET_FOLDER + "/" + fileName
   }
   return result
 }

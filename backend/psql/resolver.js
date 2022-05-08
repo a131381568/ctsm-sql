@@ -460,7 +460,7 @@ const resolvers = {
       }
     },
     facilitiesList: async () => {
-      const result = await knex('facilities_list').select('*').whereNot('published', '=', false)
+      const result = await knex('facilities_list').select('*').whereNot('published', '=', false).orderBy('facilities_orderid', 'ASC')
       if (result.length === 0) {
         return []
       } else {
@@ -468,7 +468,7 @@ const resolvers = {
       }
     },
     observatoriesList: async () => {
-      const result = await knex('observatories_list').select('*').whereNot('published', '=', false)
+      const result = await knex('observatories_list').select('*').whereNot('published', '=', false).orderBy('facilities_orderid', 'ASC')
       if (result.length === 0) {
         return []
       } else {
