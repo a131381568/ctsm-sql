@@ -1089,7 +1089,7 @@ const resolvers = {
       if (checkCatId.length > 0) {
         let maxNum = 0
         checkCatId.forEach(catId => {
-          let strReplace = catId.post_category_id.replace('cataaaa_', '')
+          let strReplace = catId.post_category_id.replace(categoryId + '_', '')
           if (strReplace !== categoryId && Number(strReplace) > maxNum) {
             maxNum = Number(strReplace)
           }
@@ -1250,8 +1250,25 @@ const resolvers = {
       return commonResponse
     },
     setNewObservatories: isAuthenticated(async (parent, args) => {
-      const { observatory_category_name, observatory_category_id, observatory_post_content } = args;
+      let { observatory_category_name, observatory_category_id, observatory_post_content } = args;
       const commonResponse = { code: 0, message: '' };
+
+      const checkCatId = await knex('observatories_list').select('observatory_category_id').where('observatory_category_id', 'like', `${observatory_category_id
+        }%`)
+
+      if (checkCatId.length > 0) {
+        let maxNum = 0
+        checkCatId.forEach(catId => {
+          let strReplace = catId['observatory_category_id'].replace(observatory_category_id + '_', '')
+          if (strReplace !== observatory_category_id && Number(strReplace) > maxNum) {
+            maxNum = Number(strReplace)
+          }
+        });
+        observatory_category_id = observatory_category_id + '_' + (1 + maxNum)
+      } else if (checkCatId.length === 1 && checkCatId[0] === observatory_category_id) {
+        observatory_category_id = observatory_category_id + '_1'
+      }
+
       await knex('observatories_list')
         .insert({
           observatory_category_name: observatory_category_name,
