@@ -1086,7 +1086,7 @@ const resolvers = {
 
       const checkCatId = await knex('post_categories').select('post_category_id').where('post_category_id', 'like', `${categoryId}%`)
 
-      if (checkCatId.length > 1) {
+      if (checkCatId.length > 0) {
         let maxNum = 0
         checkCatId.forEach(catId => {
           let strReplace = catId.post_category_id.replace('cataaaa_', '')
