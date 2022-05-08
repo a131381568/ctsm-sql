@@ -86,7 +86,7 @@ const server = new ApolloServer({
 server.start().then(res => {
   app.use(graphqlUploadExpress({ maxFileSize: 20000000, maxFiles: 1 }));
   server.applyMiddleware({
-    cors: corsOptions,
+    // cors: corsOptions,
     app,
     path: '/graphql'
   });

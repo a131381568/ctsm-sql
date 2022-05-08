@@ -438,7 +438,7 @@ const resolvers = {
       };
     },
     artistsCategories: async () => {
-      const result = await knex('post_categories').select('*').where('published', '=', true)
+      const result = await knex('post_categories').select('*').where('published', '=', true).orderBy('post_category_orderid', 'ASC')
       return result
     },
     pageInfo: async () => {
@@ -670,6 +670,7 @@ const resolvers = {
         .first();
       const setTime = changeDate()
       const newId = 1 + maxPostId.max
+
       await knex('science')
         .insert({
           postid: newId,
@@ -1080,8 +1081,24 @@ const resolvers = {
       return commonResponse
     },
     setNewCategory: async (parent, args) => {
-      const { categoryName, categoryId } = args;
+      let { categoryName, categoryId } = args;
       const commonResponse = { code: 0, message: '' };
+
+      const checkCatId = await knex('post_categories').select('post_category_id').where('post_category_id', 'like', `${categoryId}%`)
+
+      if (checkCatId.length > 1) {
+        let maxNum = 0
+        checkCatId.forEach(catId => {
+          let strReplace = catId.post_category_id.replace('cataaaa_', '')
+          if (strReplace !== categoryId && Number(strReplace) > maxNum) {
+            maxNum = Number(strReplace)
+          }
+        });
+        categoryId = categoryId + '_' + (1 + maxNum)
+      } else if (checkCatId.length === 1 && checkCatId[0] === categoryId) {
+        categoryId = categoryId + '_1'
+      }
+
       const orderid = await knex('post_categories')
         .max('post_category_orderid')
         .first();
@@ -1103,6 +1120,7 @@ const resolvers = {
           commonResponse.message = '新增失敗';
           return commonResponse;
         });
+
       return commonResponse
     },
     deleteCategory: async (parent, args) => {
