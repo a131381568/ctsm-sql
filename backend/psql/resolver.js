@@ -476,7 +476,7 @@ const resolvers = {
       }
     },
     stargazingList: async () => {
-      const result = await knex('stargazing_list').select('*')
+      const result = await knex('stargazing_list').select('*').whereNot('published', '=', false).orderBy('stargazing_orderid', 'DESC')
       if (result.length === 0) {
         return []
       } else {
