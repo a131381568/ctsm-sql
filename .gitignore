@@ -130,3 +130,12 @@ dist
 # apple
 .DS_Store
 .eslintrc-auto-import.json
+
+# Authentication
+*.pem
+*.ppk
+*.crt
+*.key
+
+# f2e
+frontend/*

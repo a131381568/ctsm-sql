@@ -15,8 +15,17 @@ const { graphqlUploadExpress } = require('graphql-upload');
 const typeDefs = require('./psql/schema.js');
 const resolvers = require('./psql/resolver.js');
 
-// import typeDefs from './psql/schema';
-// import resolvers from './psql/resolver';
+// const fs = require('fs');
+// const https = require('https');
+// let httpServer;
+// httpServer = https.createServer(
+//   {
+//     key: fs.readFileSync("../nginx/ssl/private.key"),
+//     cert: fs.readFileSync("../nginx/ssl/certificate.crt")
+//   },
+//   app
+// )
+
 
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.BE_JWT_SECRET;
