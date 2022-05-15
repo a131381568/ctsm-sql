@@ -12,7 +12,7 @@
   + graphql
   + graphql-tools
   + graphql-upload
-- 後端伺服器本體相關
+- 後端伺服器
   + express
   + http
   + https
@@ -28,13 +28,13 @@
   + stream-promise
 - aws-sdk
 
-## 三、登入邏輯圖
+## 三、登入邏輯圖（Login Logic）
 ![登入邏輯圖](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/01-login-logic.gif)
 
-## 四、資料表關係
+## 四、資料表關係（Data Sheet）
 ![資料表介紹](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/04-data-sheet.gif)
 
-## 五、本機開發 Apollo Server API
+## 五、本機開發 API（Apollo Server API）
 1. 確定連接資料庫 /backend/psql/adapter 的環境變數都有設置好，本地端已開啟 Postgres 的 Server。
 2. 運行 Apollo Server：
 ```shell
@@ -59,7 +59,7 @@ npm run dev
 
 - 新增 Query 和 Mutation 的詳細設定，需在 /backend/psql/resolver 進行撰寫，並在 /backend/psql/schema 進行設定。
 
-## 六、Docker 部署
+## 六、Docker 部署（Deploy）
 1. SSH 連接至遠端伺服器。
 2. 安裝並啟動 Docker。
 ```shell
