@@ -15,6 +15,7 @@ CTSM-SQL 為 Catch the stars 的後端系統，包括 Apollo Express、PostgreSQ
   + graphql-upload
 - 後端伺服器
   + express
+  + stream-promise
   + http
   + https
 - JWT 相關
@@ -26,7 +27,6 @@ CTSM-SQL 為 Catch the stars 的後端系統，包括 Apollo Express、PostgreSQ
 - 資料庫相關
   + knex
   + pg-promise
-  + stream-promise
 - aws-sdk
 
 ## 三、登入邏輯圖（Login Logic）
@@ -49,7 +49,7 @@ npm run dev
 ```
 3. 瀏覽器進入 [http://localhost:4000/graphql](http://localhost:4000/graphql)，可在 CodeSandbox 的介面進行 query 和 mutation。
 
-- 請求 4885 的文章：
+- 請求 postid 為 4885 的文章：
 ![CodeSandbox](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/08-apollographql-sanbox.jpg)
 
 - Query
@@ -62,7 +62,7 @@ npm run dev
 
 ## 六、Docker 部署（Deploy）
 容器架構為：
-![docker-setting](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/11-docker-setting.gif)
+![docker-setting](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/11-docker-setting-2.gif)
 1. SSH 連接至遠端伺服器。
 2. 安裝並啟動 Docker。
 ```shell
@@ -83,7 +83,7 @@ docker-compose up -d
 ```
 5. 將 sql 檔匯入至 postgres 的容器內
 ```shell
-# 將 db.sql 複製到 postgres 的容器內 
+# 將 ctsm-db.sql 複製到 postgres 的容器內 
 psql -U postgres postgres < ctsm-db.sql
 docker cp ctsm-db.sql 983358f034a9:/tmp
 
