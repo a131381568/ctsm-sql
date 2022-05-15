@@ -1,4 +1,5 @@
 # CTSM SQL
+CTSM-SQL 為 Catch the stars 的後端系統，包括 Apollo Express、PostgreSQL、Nginx 和 Docker 配置。
 
 ## 一、簡述（Description）
 - /backend 內的資料，為 [Catch the stars](https://github.com/a131381568/catching-the-star-master) 的後端原始程式。
@@ -60,6 +61,8 @@ npm run dev
 - 新增 Query 和 Mutation 的詳細設定，需在 /backend/psql/resolver 進行撰寫，並在 /backend/psql/schema 進行設定。
 
 ## 六、Docker 部署（Deploy）
+容器架構為：
+![docker-setting](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/11-docker-setting.gif)
 1. SSH 連接至遠端伺服器。
 2. 安裝並啟動 Docker。
 ```shell
