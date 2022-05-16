@@ -139,4 +139,4 @@ dist
 
 # f2e
 frontend/
-frontend/index.html
+frontend/*

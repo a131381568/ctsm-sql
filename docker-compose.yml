@@ -4,21 +4,25 @@ services:
 
   nginx:
     container_name: 'nginx'
-    image: nginx:alpine
+    image: jonasal/nginx-certbot:latest
+    restart: unless-stopped
+    environment:
+      - CERTBOT_EMAIL
     volumes:
       - ./frontend:/etc/nginx/html
-      - ./nginx/default.conf:/etc/nginx/nginx.conf
-      # - ./nginx/ssl:/etc/ssl
+      - nginx_secrets:/etc/letsencrypt
+      - ./nginx:/etc/nginx/user_conf.d
     links:
       - node
       - postgres
     ports:
-      - "80:80"
-    # - "443:443"
-    expose:
-      - "80"
+      - 80:80
+      - 443:443
+    # expose:
+    #   - "80"
     env_file:
       - ./backend/.env.production
+    #  - ./nginx/nginx-certbot.env
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -84,3 +88,4 @@ networks:
 volumes:
   # backend-data:
   postgres-data:
+  nginx_secrets:
