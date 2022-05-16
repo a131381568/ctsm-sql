@@ -62,7 +62,7 @@ npm run dev
 
 ## 六、Docker 部署（Deploy）
 容器架構為：
-![docker-setting](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/11-docker-setting-3.gif)
+![docker-setting](https://raw.githubusercontent.com/a131381568/catching-the-star-master/main/doc/images/11-docker-setting-4.gif)
 1. SSH 連接至遠端伺服器。
 2. 安裝並啟動 Docker。
 ```shell
