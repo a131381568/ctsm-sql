@@ -102,3 +102,26 @@ psql --host=0.0.0.0 --username=postgres
 # 查看資料表是否匯入
 \z
 ```
+6. 手動更新憑證
+  > 參考原 Docker 映像檔 - [docker-nginx-certbot](https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/advanced_usage.md#manualforce-renewal)
+```shell
+# 進入 nginx 容器內
+ssh -i "key.pem" ec2.url......
+# 針對指定 html 路徑和網域發證書 (先加上 --dry-run 測試)
+certbot certonly --webroot -w /etc/nginx/html/ -d my.site.com --dry-run
+certbot certonly --webroot -w /etc/nginx/html/ -d my.site.com
+# 驗證 (先加上 --dry-run 測試)
+certbot renew --dry-run
+certbot renew
+# 退回容器外
+exit
+# 刪除 nginx 容器
+docker kill --signal=HUP <container_name>
+# 重新設定容器
+docker-compose up -d
+# 最後輸入網路確認鎖頭日期即可
+```
+  - [解析 Certbot 使用方式](https://andyyou.github.io/2019/04/13/how-to-use-certbot/)
+  - [安裝 Certbot 工具](https://www.digit-seed.com/centos7-certbot-lets_encrypt_ssl/)
+  - [Certbot 申請 SSL certificate 錯誤問題](https://noter.tw/8596/certbot-error/)
+  - [簡明 Vim 教學](https://blog.techbridge.cc/2020/04/06/how-to-use-vim-as-an-editor-tutorial/)
