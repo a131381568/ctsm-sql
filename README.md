@@ -1,4 +1,7 @@
 # CTSM SQL
+
+> ## 2024-11-28 遷移至 [cts-back-end](https://github.com/a131381568/blair-nx/tree/development/apps/cts-back-end)
+
 CTSM-SQL 為 Catch the stars 的後端系統，包括 Apollo Express、PostgreSQL、Nginx 和 Docker 配置。
 
 ## 一、簡述（Description）
